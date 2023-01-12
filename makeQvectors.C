@@ -52,6 +52,16 @@ filteredDF defineVariables(definedDF &d)
     auto pid = ROOT::VecOps::Map(code, [](int x){ return (double)x; });
     return pid;
   };
+
+  // Define charge from pdg code
+  auto getCharge = [](const ROOT::VecOps::EVec<int> &code) {
+    auto pid = ROOT::VecOps::Map(code, [](int x){ return (double)x; });
+    TParticlePDG *particle = (TParticlePDG*) TDatabasePDG::Instance()->GetParticle(pid);
+    if (!particle) return -999.;
+    auto charge = particle->Charge()/3.;
+    delete particle;
+    return charge;
+  };
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
   auto dd=d
@@ -60,7 +70,9 @@ filteredDF defineVariables(definedDF &d)
     .Define("trEta", getEta, {"momx", "momy", "momz"})
     .Define("trPhi", getPhi, {"momx", "momy"})
     .Define("trPdg", getPdg, {"pdg"})
+    .Define("trCharge", getCharge, {"pdg"})
     .Filter("evB<=16.")
+    .Filter("trCharge!=0 && trCharge!=-999.")
   ;
   
   varPatterns=
