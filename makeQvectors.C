@@ -52,16 +52,6 @@ filteredDF defineVariables(definedDF &d)
     auto pid = ROOT::VecOps::Map(code, [](int x){ return (double)x; });
     return pid;
   };
-
-  // Define charge from pdg code
-  auto getCharge = [](const ROOT::VecOps::EVec<int> &code) {
-    auto pid = ROOT::VecOps::Map(code, [](int x){ return (double)x; });
-    TParticlePDG *particle = (TParticlePDG*) TDatabasePDG::Instance()->GetParticle(pid);
-    if (!particle) return -999.;
-    auto charge = particle->Charge()/3.;
-    delete particle;
-    return charge;
-  };
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
   auto dd=d
@@ -70,16 +60,14 @@ filteredDF defineVariables(definedDF &d)
     .Define("trEta", getEta, {"momx", "momy", "momz"})
     .Define("trPhi", getPhi, {"momx", "momy"})
     .Define("trPdg", getPdg, {"pdg"})
-    .Define("trCharge", getCharge, {"pdg"})
-    .Filter("evB<=16.")
-    .Filter("trCharge!=0 && trCharge!=-999.")
+    .Filter("evB<16.") // At least one filter should be present (even if it always returns true)!!!
   ;
   
   varPatterns=
   {
-    "evB",               // kEvent
-    "",                  // kChannel 
-    "",                  // kRecParticle  
+    "evB",                      // kEvent
+    "",                         // kChannel 
+    "",                         // kRecParticle  
     "tr(Pt|Eta|Phi|Pdg)" // kSimParticle  
   };
 
@@ -118,7 +106,7 @@ void setupQvectors()
   
   std::string name;
 
-  name = "tr_TPC_F_u_Prot";
+  name = "u_TPC_F_Prot";
   man.AddDetector(name.c_str(), track, "trPhi", "Ones", corrAxesParticle, {1,2,3,4}, sumW);
   man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
   man.AddCutOnDetector(name.c_str(), {"trPdg"}, [](float pdg){return int(pdg)==2212;}, "proton");
@@ -129,7 +117,7 @@ void setupQvectors()
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
 //  man.AddHisto2D("tr", {{"trEta", 100, 0., 6.}, {"trPt",  100, 0., 3.}}, "Ones");
   
-  name = "tr_TPC_L_u_Prot";
+  name = "u_TPC_L_Prot";
   man.AddDetector(name.c_str(), track, "trPhi", "Ones", corrAxesParticle, {1,2,3,4}, sumW);
   man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
   man.AddCutOnDetector(name.c_str(), {"trPdg"}, [](float pdg){return int(pdg)==2212;}, "proton");
@@ -139,7 +127,7 @@ void setupQvectors()
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
 
-  name = "tr_TPC_R_u_Prot";
+  name = "u_TPC_R_Prot";
   man.AddDetector(name.c_str(), track, "trPhi", "Ones", corrAxesParticle, {1,2,3,4}, sumW);
   man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
   man.AddCutOnDetector(name.c_str(), {"trPdg"}, [](float pdg){return int(pdg)==2212;}, "proton");
@@ -149,7 +137,7 @@ void setupQvectors()
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
 
-  name = "tr_TPC_F_Q_Prot";
+  name = "Q_TPC_F_Prot";
   man.AddDetector(name.c_str(), track, "trPhi", "Ones", corrAxesEvent, {1,2,3,4}, sumW);
   man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
   man.AddCutOnDetector(name.c_str(), {"trPdg"}, [](float pdg){return int(pdg)==2212;}, "proton");
@@ -159,7 +147,7 @@ void setupQvectors()
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
 
-  name = "tr_TPC_L_Q_Prot";
+  name = "Q_TPC_L_Prot";
   man.AddDetector(name.c_str(), track, "trPhi", "Ones", corrAxesEvent, {1,2,3,4}, sumW);
   man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
   man.AddCutOnDetector(name.c_str(), {"trPdg"}, [](float pdg){return int(pdg)==2212;}, "proton");
@@ -169,7 +157,7 @@ void setupQvectors()
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
 
-  name = "tr_TPC_R_Q_Prot";
+  name = "Q_TPC_R_Prot";
   man.AddDetector(name.c_str(), track, "trPhi", "Ones", corrAxesEvent, {1,2,3,4}, sumW);
   man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
   man.AddCutOnDetector(name.c_str(), {"trPdg"}, [](float pdg){return int(pdg)==2212;}, "proton");
