@@ -1,2 +1,7 @@
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/scratch2/parfenov/Soft/QnTools/install-root-v6-26-10-1/lib
-export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:/scratch2/parfenov/Soft/QnTools/install-root-v6-26-10-1/include/QnTools
+source /mnt/pool/nica/7/parfenovpeter/Soft/root-6-26/build/bin/thisroot.sh
+export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:/mnt/pool/nica/7/parfenovpeter/Soft/root-6-26/install/include/
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/mnt/pool/nica/7/parfenovpeter/Soft/QnTools/install/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/mnt/pool/nica/7/parfenovpeter/Soft/StFemtoEvent/build/
+export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:/mnt/pool/nica/7/parfenovpeter/Soft/QnTools/include/QnTools
+export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:/mnt/pool/nica/7/parfenovpeter/Soft/StFemtoEvent/

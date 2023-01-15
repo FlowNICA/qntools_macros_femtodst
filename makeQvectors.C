@@ -8,8 +8,8 @@ void makeQvectors(string inputFiles="/eos/nica/mpd/sim/taranenko/jam109/auau_4.5
 {
   TStopwatch timer;
   timer.Start();
-  std::string treename = "mctree";
-  ROOT::RDataFrame d(*makeChain(inputFiles, treename.c_str()));
+
+  ROOT::RDataFrame d(*makeChain(inputFiles, "tStarData"));
   auto dd=defineVariables(d);
   init(dd, outFilePath, calibFilePath);
   setupQvectors(); 
@@ -24,33 +24,15 @@ void makeQvectors(string inputFiles="/eos/nica/mpd/sim/taranenko/jam109/auau_4.5
 
 filteredDF defineVariables(definedDF &d)
 {
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  // Define function for a centrality
-  auto getCentB = [](float b) {
-    // Hard coded centrality defenition
-    // based on the impact parameter
-    float fcent;
-    if      (b < 2.91)  fcent = 2.5; // 0-5%
-    else if (b < 4.18)  fcent = 7.5; // 5-10%
-    else if (b < 6.01)  fcent = 15.; // 10-20%
-    else if (b < 7.37)  fcent = 25.; // 20-30%
-    else if (b < 8.52)  fcent = 35.; // 30-40%
-    else if (b < 9.57)  fcent = 45.; // 40-50%
-    else if (b < 10.55) fcent = 55.; // 50-60%
-    else if (b < 11.46) fcent = 65.; // 60-70%
-    else if (b < 12.31) fcent = 75.; // 70-80%
-    else                fcent = -1;
-    return fcent;
-  };
-
-  // Define function to get pt from px, py
-  auto getPt = [](const ROOT::VecOps::RVec<Float_t> &px, const ROOT::VecOps::RVec<Float_t> &py) {
+	/////////////////////////////////////////////////////////////////////////////////////////////////
+	// Define function to get pt from px, py
+  auto getPt = [](const ROOT::VecOps::RVec<Double_t> &px, const ROOT::VecOps::RVec<Double_t> &py) {
     auto pt = ROOT::VecOps::Map(px, py, [](float x, float y){ return sqrt(x*x + y*y); });
     return pt;
   };
 
   // Define function to get eta from px, py, pz
-  auto getEta = [](const ROOT::VecOps::RVec<Float_t> &px, const ROOT::VecOps::RVec<Float_t> &py, const ROOT::VecOps::RVec<Float_t> &pz) {
+  auto getEta = [](const ROOT::VecOps::RVec<Double_t> &px, const ROOT::VecOps::RVec<Double_t> &py, const ROOT::VecOps::RVec<Double_t> &pz) {
     auto eta = ROOT::VecOps::Map(px, py, pz, [](float x, float y, float z){ 
       auto mod = sqrt(x*x + y*y + z*z);
       if (mod == z) return -999.;
@@ -60,40 +42,35 @@ filteredDF defineVariables(definedDF &d)
   };
 
   // Define function to get azimuthal angle from px, py
-  auto getPhi = [](const ROOT::VecOps::RVec<Float_t> &px, const ROOT::VecOps::RVec<Float_t> &py) {
+  auto getPhi = [](const ROOT::VecOps::RVec<Double_t> &px, const ROOT::VecOps::RVec<Double_t> &py) {
     auto phi = ROOT::VecOps::Map(px, py, [](float x, float y){ return atan2(y,x); });
     return phi;
   };
-
-  // Define function to do a simple 1 = 1 translation into a newly defined column for array of int
-  auto getArrayValueI = [](const ROOT::VecOps::RVec<int> &val) {
-    auto result = ROOT::VecOps::Map(val, [](int x){ return (double)x; });
-    return result;
-  };
-
-  // Define function to do a simple 1 = 1 translation into a newly defined column for array of short
-  auto getArrayValueSh = [](const ROOT::VecOps::RVec<short> &val) {
-    auto result = ROOT::VecOps::Map(val, [](short x){ return (double)x; });
-    return result;
-  };
-  /////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////
 
   auto dd=d
-    .Define("evCent",getCentB, {"bimp"})
-    .Define("trPt",  getPt,  {"momx", "momy"})
-    .Define("trEta", getEta, {"momx", "momy", "momz"})
-    .Define("trPhi", getPhi, {"momx", "momy"})
-    .Define("trPdg", getArrayValueI, {"pdg"})
-    .Define("trCh",  getArrayValueSh, {"charge"})
-    .Filter("evCent!=-1.") // At least one filter should be present (even if it always returns true)!!!
+		.Define("evCent","ev_cent")
+		.Define("evVtxX","ev_vtxX")
+		.Define("evVtxY","ev_vtxY")
+		.Define("evVtxZ","ev_vtxZ")
+		.Define("evVpdZ","ev_vpdZ")
+    .Define("trPt",  getPt,  {"tr_px", "tr_py"})
+    .Define("trEta", getEta, {"tr_px", "tr_py", "tr_pz"})
+    .Define("trPhi", getPhi, {"tr_px", "tr_py"})
+    .Define("trCh",  "tr_ch")
+    .Define("trNhits", "tr_Nhits")
+    .Define("trNhitsFit", "tr_NhitsFit")
+    .Define("trNhitsPoss", "tr_NhitsPoss")
+    .Define("trDca", "tr_dca")
+    .Filter("evVtxZ>-70 && evVtxZ<70") // At least one filter should be present (even if it always returns true)!!!
   ;
   
   varPatterns=
   {
-    "evCent",                   // kEvent
+    "ev(Cent|VtxX|VtxY|VtxZ|VpdZ)", // kEvent
     "",                         // kChannel 
-    "",                         // kRecParticle  
-    "tr(Pt|Eta|Phi|Pdg|Ch)"     // kSimParticle  
+    "tr(Pt|Eta|Phi|Ch|Nhits|NhitsFit|NhitsPoss|Dca)",  // kRecParticle  
+    ""     // kSimParticle  
   };
 
   return dd; 
@@ -103,13 +80,13 @@ void setupQvectors()
 {
   vector<Qn::AxisD> corrAxesEvent=
   {
-    {"evCent", {0., 5., 10., 20., 30., 40., 50., 60., 70., 80.}},
+    {"evCent", {0., 5., 10., 15., 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80.}},
   };
 
   vector<Qn::AxisD> corrAxesParticle=
   {
     {"trPt",30,0,3},
-    {"trEta",30,-1.5,1.5},
+    {"trEta",20,-1.,1.},
   };
 
   for (auto &axis:corrAxesEvent)
@@ -133,21 +110,20 @@ void setupQvectors()
 
   name = "u_TPC_F_ch";
   man.AddDetector(name.c_str(), track, "trPhi", "Ones", corrAxesParticle, {1,2,3,4}, sumW);
-  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
-  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return abs(eta)<1.5;}, "eta_cut");
+  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kRecParticle), "recParticle");
+  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return abs(eta)<1.;}, "eta_cut");
   man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return pt<3.;}, "pt_cut");
-  man.AddCutOnDetector(name.c_str(), {"trCh"},  [](float ch){return (ch!=0. && ch!=-999.);}, "charge_cut");
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
 //  man.AddHisto2D("tr", {{"trEta", 100, 0., 6.}, {"trPt",  100, 0., 3.}}, "Ones");
-  
+
   name = "u_TPC_L_ch";
   man.AddDetector(name.c_str(), track, "trPhi", "Ones", corrAxesParticle, {1,2,3,4}, sumW);
-  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
-  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return (eta>-1.5 && eta<-0.05);}, "eta_cut");
-  man.AddCutOnDetector(name.c_str(), {"trCh"},  [](float ch){return (ch!=0. && ch!=-999.);}, "charge_cut");
+  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kRecParticle), "recParticle");
+  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return (eta>-1. && eta<-0.05);}, "eta_cut");
+  man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return pt<3.;}, "pt_cut");
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
@@ -155,41 +131,9 @@ void setupQvectors()
 
   name = "u_TPC_R_ch";
   man.AddDetector(name.c_str(), track, "trPhi", "Ones", corrAxesParticle, {1,2,3,4}, sumW);
-  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
-  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return (eta<1.5 && eta>0.05);}, "eta_cut");
-  man.AddCutOnDetector(name.c_str(), {"trCh"},  [](float ch){return (ch!=0. && ch!=-999.);}, "charge_cut");
-  man.AddCorrectionOnQnVector(name.c_str(), recentering);
-  man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
-  man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
-  man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
-
-  name = "u_TPC_F_prot";
-  man.AddDetector(name.c_str(), track, "trPhi", "Ones", corrAxesParticle, {1,2,3,4}, sumW);
-  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
-  man.AddCutOnDetector(name.c_str(), {"trPdg"}, [](float pdg){return int(pdg)==2212;}, "proton");
-  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return abs(eta)<1.5;}, "eta_cut");
+  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kRecParticle), "recParticle");
+  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return (eta>0.05 && eta<1.);}, "eta_cut");
   man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return pt<3.;}, "pt_cut");
-  man.AddCorrectionOnQnVector(name.c_str(), recentering);
-  man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
-  man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
-  man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
-//  man.AddHisto2D("tr", {{"trEta", 100, 0., 6.}, {"trPt",  100, 0., 3.}}, "Ones");
-  
-  name = "u_TPC_L_prot";
-  man.AddDetector(name.c_str(), track, "trPhi", "Ones", corrAxesParticle, {1,2,3,4}, sumW);
-  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
-  man.AddCutOnDetector(name.c_str(), {"trPdg"}, [](float pdg){return int(pdg)==2212;}, "proton");
-  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return (eta>-1.5 && eta<-0.05);}, "eta_cut");
-  man.AddCorrectionOnQnVector(name.c_str(), recentering);
-  man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
-  man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
-  man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
-
-  name = "u_TPC_R_prot";
-  man.AddDetector(name.c_str(), track, "trPhi", "Ones", corrAxesParticle, {1,2,3,4}, sumW);
-  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
-  man.AddCutOnDetector(name.c_str(), {"trPdg"}, [](float pdg){return int(pdg)==2212;}, "proton");
-  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return (eta<1.5 && eta>0.05);}, "eta_cut");
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
@@ -197,10 +141,9 @@ void setupQvectors()
 
   name = "Q_TPC_F_ch";
   man.AddDetector(name.c_str(), track, "trPhi", "Ones", {}, {1,2,3,4}, sumW);
-  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
-  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return abs(eta)<1.5;}, "eta_cut");
-  man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return (pt<3. && pt>0.2);}, "pt_cut");
-  man.AddCutOnDetector(name.c_str(), {"trCh"},  [](float ch){return (ch!=0. && ch!=-999.);}, "charge_cut");
+  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kRecParticle), "recParticle");
+  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return abs(eta)<1.;}, "eta_cut");
+  man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return (pt<2. && pt>0.2);}, "pt_cut");
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
@@ -208,10 +151,9 @@ void setupQvectors()
 
   name = "Q_TPC_L_ch";
   man.AddDetector(name.c_str(), track, "trPhi", "Ones", {}, {1,2,3,4}, sumW);
-  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
-  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return (eta>-1.5 && eta<-0.05);}, "eta_cut");
-  man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return (pt<3. && pt>0.2);}, "pt_cut");
-  man.AddCutOnDetector(name.c_str(), {"trCh"},  [](float ch){return (ch!=0. && ch!=-999.);}, "charge_cut");
+  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kRecParticle), "recParticle");
+  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return (eta>-1. && eta<-0.05);}, "eta_cut");
+  man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return (pt<2. && pt>0.2);}, "pt_cut");
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
@@ -219,43 +161,9 @@ void setupQvectors()
 
   name = "Q_TPC_R_ch";
   man.AddDetector(name.c_str(), track, "trPhi", "Ones", {}, {1,2,3,4}, sumW);
-  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
-  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return (eta<1.5 && eta>0.05);}, "eta_cut");
-  man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return (pt<3. && pt>0.2);}, "pt_cut");
-  man.AddCutOnDetector(name.c_str(), {"trCh"},  [](float ch){return (ch!=0. && ch!=-999.);}, "charge_cut");
-  man.AddCorrectionOnQnVector(name.c_str(), recentering);
-  man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
-  man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
-  man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
-
-  name = "Q_TPC_F_prot";
-  man.AddDetector(name.c_str(), track, "trPhi", "Ones", {}, {1,2,3,4}, sumW);
-  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
-  man.AddCutOnDetector(name.c_str(), {"trPdg"}, [](float pdg){return int(pdg)==2212;}, "proton");
-  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return abs(eta)<1.5;}, "eta_cut");
-  man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return (pt<3. && pt>0.2);}, "pt_cut");
-  man.AddCorrectionOnQnVector(name.c_str(), recentering);
-  man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
-  man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
-  man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
-
-  name = "Q_TPC_L_prot";
-  man.AddDetector(name.c_str(), track, "trPhi", "Ones", {}, {1,2,3,4}, sumW);
-  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
-  man.AddCutOnDetector(name.c_str(), {"trPdg"}, [](float pdg){return int(pdg)==2212;}, "proton");
-  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return (eta>-1.5 && eta<-0.05);}, "eta_cut");
-  man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return (pt<3. && pt>0.2);}, "pt_cut");
-  man.AddCorrectionOnQnVector(name.c_str(), recentering);
-  man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
-  man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
-  man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
-
-  name = "Q_TPC_R_prot";
-  man.AddDetector(name.c_str(), track, "trPhi", "Ones", {}, {1,2,3,4}, sumW);
-  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kSimParticle), "simParticle");
-  man.AddCutOnDetector(name.c_str(), {"trPdg"}, [](float pdg){return int(pdg)==2212;}, "proton");
-  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return (eta<1.5 && eta>0.05);}, "eta_cut");
-  man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return (pt<3. && pt>0.2);}, "pt_cut");
+  man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kRecParticle), "recParticle");
+  man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return (eta>0.05 && eta<1.);}, "eta_cut");
+  man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return (pt<2. && pt>0.2);}, "pt_cut");
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
