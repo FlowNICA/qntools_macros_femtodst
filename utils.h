@@ -63,8 +63,11 @@ TTree* makeTree4RDF(std::string fileName) {
 	// Loop over events
   for(Long64_t iEvent=0; iEvent<events2read; iEvent++) {
 
-    std::cout << "Preparing event #[" << (iEvent+1)
-      	      << "/" << events2read << "] for RDataFrame" << std::endl;
+		if (iEvent % 1000 == 0)
+		{
+			std::cout << "Preparing event #[" << (iEvent+1)
+					      << "/" << events2read << "] for RDataFrame" << std::endl;
+		}
 
     Bool_t readEvent = femtoReader->readFemtoEvent(iEvent);
     if( !readEvent ) {
