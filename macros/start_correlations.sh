@@ -26,7 +26,7 @@ export FILELIST=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/macr
 export SHORTNAME1=`basename $FILELIST`
 export SHORTNAME11=${SHORTNAME1%.list}
 export SHORTNAME12=${SHORTNAME11#runlists_qn_}
-export LABEL1=${SHORTNAME12}
+export LABEL1=${SHORTNAME12}_correlate
 #export LABEL2=flow_ch
 export LABEL=${LABEL1} #${LABEL1}_${LABEL2}
 
@@ -39,7 +39,7 @@ export OUT_DIR=${MAIN_DIR}/OUT/${LABEL}
 export OUT=${OUT_DIR}/${JOB_ID}
 export OUT_LOG=${OUT}/log
 export OUT_FILEDIR=${OUT}/correlations
-export OUT_FILE=${OUT_FILEDIR}/qn_${LABEL}_${JOB_ID}_${TASK_ID}.root
+export OUT_FILE=${OUT_FILEDIR}/correlate_${LABEL}_${JOB_ID}_${TASK_ID}.root
 export LOG=${OUT_LOG}/JOB_${JOB_ID}_${TASK_ID}.log
 
 #export TMP_DIR=${MAIN_DIR}/TMP/TMP_${JOB_ID}_${TASK_ID}
