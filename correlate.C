@@ -17,7 +17,7 @@ vector <vector<string>> uvQv=
 };
 
 vector <string> uv= 
-  {"u_TPC_L_ch_PLAIN", "u_TPC_R_ch_PLAIN"};
+  {"u_TPC_L_ch_RESCALED", "u_TPC_R_ch_RESCALED"};
 
 void correlate(string inputFiles="qn.root", string outputFile="corr.root")
 {
@@ -25,9 +25,9 @@ void correlate(string inputFiles="qn.root", string outputFile="corr.root")
 	timer.Start();
   int nSamples = 50;
   Qn::AxisD centAxis({"evCent", {0., 5., 10., 15., 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80.}});
-  //Qn::AxisD vtxAxis({"evVtxZ", 7, -70., 70.});
-	Qn::AxisD ptAxis({"trPt", {0., 0.2, 0.4, 0.6, 0.8, 1., 1.5, 2., 3.}});
-	Qn::AxisD etaAxis({"trEta", 5, -1., 1.});
+  Qn::AxisD vtxAxis({"evVtxZ", {-30.,-24.,-18.,-12.,-6.,0.,6.,12.,18.,24.,30.}});
+	Qn::AxisD ptAxis({"trPt", {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2., 2.2, 2.4, 2.6, 2.8, 3., 3.25, 3.5, 3.75, 4., 4.5, 5.});
+	Qn::AxisD etaAxis({"trEta", 20, -1., 1.});
   auto axes_correlation = Qn::MakeAxes(centAxis); //, vtxAxis);
   TChain *c=makeChain(inputFiles, "tree");
   ROOT::RDataFrame d(*c);
@@ -69,11 +69,11 @@ void correlate(string inputFiles="qn.root", string outputFile="corr.root")
     corrBuilder.AddCorrelationWithInternalReader(corrName+"_XY_", P2::xy(2, 2), wUnity, wn, qn, qn);
     corrBuilder.AddCorrelationWithInternalReader(corrName+"_YX_", P2::yx(2, 2), wUnity, wn, qn, qn);
     corrBuilder.AddCorrelationWithInternalReader(corrName+"_SP_", P2::ScalarProduct(2, 2), wUnity, wn, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_coscos_", P2::xx(2, 2), wDenomABSumWu, wn, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_sinsin_", P2::yy(2, 2), wDenomABSumWu, wn, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_sinsin_", P2::xy(2, 2), wDenomABSumWu, wn, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_coscos_", P2::yx(2, 2), wDenomABSumWu, wn, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_EP_", P2::ScalarProduct(2, 2), wDenomABSumWu, wn, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_coscos_", P2::xx(2, 2), wDenomABSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_sinsin_", P2::yy(2, 2), wDenomABSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_sinsin_", P2::xy(2, 2), wDenomABSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_coscos_", P2::yx(2, 2), wDenomABSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_EP_", P2::ScalarProduct(2, 2), wDenomABSumWu, wy, qn, qn);
   }
   for (auto &corr:uvQv)
   {

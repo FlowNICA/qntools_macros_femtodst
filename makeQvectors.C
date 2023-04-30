@@ -98,14 +98,15 @@ void setupQvectors()
   vector<Qn::AxisD> corrAxesEvent=
   {
     {"evCent", {0., 5., 10., 15., 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80.}},
+    {"evVtxZ", {-30., -24., -18., -12., -6., 0., 6., 12., 18., 24., 30.}},
   };
 
   vector<Qn::AxisD> corrAxesParticle=
   {
-    //{"trPt",30,0,3},
-		{"trPt", {0., 0.2, 0.4, 0.6, 0.8, 1., 1.5, 2., 3.}},
-    //{"trEta",20,-1.,1.},
-    {"trEta",5,-1.,1.},
+    //{"trPt",50,0,5},
+    {"trPt", {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2., 2.2, 2.4, 2.6, 2.8, 3., 3.25, 3.5, 3.75, 4., 4.5, 5.}},
+    {"trEta", 20, -1., 1.},
+    //{"trEta",5,-1.,1.},
   };
 
   for (auto &axis:corrAxesEvent)
@@ -131,7 +132,7 @@ void setupQvectors()
   man.AddDetector(name.c_str(), track, "trPhi", "trPt", corrAxesParticle, {1,2,3,4}, sumW);
   man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kRecParticle), "recParticle");
   man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return (eta>-1. && eta<-0.05);}, "eta_cut");
-  man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return (pt<3. && pt>0.15);}, "pt_cut");
+  man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return (pt<5. && pt>0.15);}, "pt_cut");
   man.AddCutOnDetector(name.c_str(), {"trNhits"},  [](float nhits){return (nhits>15);}, "nhits_cut");
   man.AddCutOnDetector(name.c_str(), {"trNhitsPoss"},  [](float nhitsposs){return (nhitsposs>0);}, "nhitstrNhitsPoss_cut");
   man.AddCutOnDetector(name.c_str(), {"trNhits", "trNhitsPoss"},  [](float nhits, float nhitsposs){return ((double)nhits/(double)nhitsposs>0.51);}, "nhitsRatio_cut");
@@ -145,7 +146,7 @@ void setupQvectors()
   man.AddDetector(name.c_str(), track, "trPhi", "trPt", corrAxesParticle, {1,2,3,4}, sumW);
   man.AddCutOnDetector(name.c_str(), {"particleType"}, equal(kRecParticle), "recParticle");
   man.AddCutOnDetector(name.c_str(), {"trEta"}, [](float eta){return (eta>0.05 && eta<1.);}, "eta_cut");
-  man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return (pt<3. && pt>0.15);}, "pt_cut");
+  man.AddCutOnDetector(name.c_str(), {"trPt"},  [](float pt){return (pt<5. && pt>0.15);}, "pt_cut");
   man.AddCutOnDetector(name.c_str(), {"trNhits"},  [](float nhits){return (nhits>15);}, "nhits_cut");
   man.AddCutOnDetector(name.c_str(), {"trNhitsPoss"},  [](float nhitsposs){return (nhitsposs>0);}, "nhitstrNhitsPoss_cut");
   man.AddCutOnDetector(name.c_str(), {"trNhits", "trNhitsPoss"},  [](float nhits, float nhitsposs){return ((double)nhits/(double)nhitsposs>0.51);}, "nhitsRatio_cut");
