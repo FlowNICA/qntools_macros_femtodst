@@ -11,8 +11,17 @@
 #SBATCH -e /mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/TMP/slurm_%A_%a.err
 #
 
+export SKIPED_TASKS=$1
+
 export JOB_ID=${SLURM_ARRAY_JOB_ID}
 export TASK_ID=${SLURM_ARRAY_TASK_ID}
+
+if (( $SKIPED_TASKS > 0 ))
+then
+  READ_ID=$(expr $TASK_ID + $SKIPED_TASKS)
+else
+  READ_ID=$TASK_ID
+fi
 
 # Set up main software via modules
 source /mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/env.sh
@@ -21,8 +30,10 @@ source /mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/env.sh
 export START_DIR=${PWD}
 export MAIN_DIR=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst
 
+/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/OUT/auau_200gev_runs/380640/files/qn_auau_200gev_runs_380640_1000_run_12142001_part0.root
+
 # File list (of filelists) for UrQMD mcpico data at 5 GeV
-export FILELIST=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/macros/lists/runlists_qn_auau_200gev.list
+export FILELIST=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/macros/runlists/runlists_qn_auau_200gev.list
 export SHORTNAME1=`basename $FILELIST`
 export SHORTNAME11=${SHORTNAME1%.list}
 export SHORTNAME12=${SHORTNAME11#runlists_qn_}
@@ -34,13 +45,17 @@ export LABEL=${LABEL1} #${LABEL1}_${LABEL2}
 export MACRO_EXE=${MAIN_DIR}/correlate.C
 
 # Setting up main paths/filenames for output
-export IN_FILE=`sed "${TASK_ID}q;d" $FILELIST`
+export IN_FILE=`sed "${READ_ID}q;d" $FILELIST`
+export line1=`basename $IN_FILE`
+export line2=${line1#qn_*_run_}
+export line3=${line2%%.root}
+export runid=$line3
 export OUT_DIR=${MAIN_DIR}/OUT/${LABEL}
 export OUT=${OUT_DIR}/${JOB_ID}
 export OUT_LOG=${OUT}/log
 export OUT_FILEDIR=${OUT}/correlations
-export OUT_FILE=${OUT_FILEDIR}/correlate_${LABEL}_${JOB_ID}_${TASK_ID}.root
-export LOG=${OUT_LOG}/JOB_${JOB_ID}_${TASK_ID}.log
+export OUT_FILE=${OUT_FILEDIR}/correlate_${LABEL}_${JOB_ID}_${TASK_ID}_run_${runid}.root
+export LOG=${OUT_LOG}/JOB_${JOB_ID}_${TASK_ID}_run_${runid}.log
 
 #export TMP_DIR=${MAIN_DIR}/TMP/TMP_${JOB_ID}_${TASK_ID}
 
@@ -52,6 +67,10 @@ touch $LOG
 
 # Main process
 echo "INFILE:  ${IN_FILE}" &>> $LOG
+echo "Job Id:  ${JOB_ID}" &>> $LOG
+echo "Task Id: ${TASK_ID}" &>> $LOG
+echo "Read Id: ${READ_ID}" &>> $LOG
+echo "Run Id:  ${runid}" &>> $LOG
 echo "OUTFILE: ${OUT_FILE}" &>> $LOG
 echo "CONFIG:  ${MACRO_EXE}" &>> $LOG
 echo "Config ROOT-macro contents:" &>> $LOG

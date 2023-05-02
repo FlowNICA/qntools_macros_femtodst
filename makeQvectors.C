@@ -106,7 +106,7 @@ void setupQvectors()
     //{"trPt",50,0,5},
     {"trPt", {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2., 2.2, 2.4, 2.6, 2.8, 3., 3.25, 3.5, 3.75, 4., 4.5, 5.}},
     {"trEta", 20, -1., 1.},
-    //{"trEta",5,-1.,1.},
+    //{"trEta",6,-1.,1.},
   };
 
   for (auto &axis:corrAxesEvent)
@@ -140,7 +140,11 @@ void setupQvectors()
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
+  man.AddHisto1D(name.c_str(), {"evCent", 16, 0., 80.}, "Ones");
+  man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
+  man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
+  man.AddHisto1D(name.c_str(), {"trEta", 2000, -1., 1.}, "Ones");
 
   name = "u_TPC_R_ch";
   man.AddDetector(name.c_str(), track, "trPhi", "trPt", corrAxesParticle, {1,2,3,4}, sumW);
@@ -154,7 +158,11 @@ void setupQvectors()
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
+  man.AddHisto1D(name.c_str(), {"evCent", 16, 0., 80.}, "Ones");
+  man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
+  man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
+  man.AddHisto1D(name.c_str(), {"trEta", 2000, -1., 1.}, "Ones");
 
   name = "Q_TPC_L_ch";
   man.AddDetector(name.c_str(), track, "trPhi", "trPt", {}, {1,2,3,4}, sumW);
@@ -168,7 +176,11 @@ void setupQvectors()
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
+  man.AddHisto1D(name.c_str(), {"evCent", 16, 0., 80.}, "Ones");
+  man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
+  man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
+  man.AddHisto1D(name.c_str(), {"trEta", 2000, -1., 1.}, "Ones");
 
   name = "Q_TPC_R_ch";
   man.AddDetector(name.c_str(), track, "trPhi", "trPt", {}, {1,2,3,4}, sumW);
@@ -182,5 +194,9 @@ void setupQvectors()
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
+  man.AddHisto1D(name.c_str(), {"evCent", 16, 0., 80.}, "Ones");
+  man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
+  man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
+  man.AddHisto1D(name.c_str(), {"trEta", 2000, -1., 1.}, "Ones");
 }

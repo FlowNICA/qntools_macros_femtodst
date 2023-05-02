@@ -11,8 +11,17 @@
 #SBATCH -e /mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/TMP/slurm_%A_%a.err
 #
 
+export SKIPED_TASKS=$1
+
 export JOB_ID=${SLURM_ARRAY_JOB_ID}
 export TASK_ID=${SLURM_ARRAY_TASK_ID}
+
+if (( $SKIPED_TASKS > 0 ))
+then
+  READ_ID=$(expr $TASK_ID + $SKIPED_TASKS)
+else
+  READ_ID=$TASK_ID
+fi
 
 # Set up main software via modules
 source /mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/env.sh
@@ -40,7 +49,11 @@ export CONVERT_EXE=${MAIN_DIR}/convertFemto.C
 export MACRO_EXE=${MAIN_DIR}/makeQvectors.C
 
 # Setting up main paths/filenames for output
-export IN_FILE=`sed "${TASK_ID}q;d" $FILELIST`
+export IN_FILE=`sed "${READ_ID}q;d" $FILELIST`
+export line1=`basename $IN_FILE`
+export line2=${line1#runlist_femtodst_runid_}
+export line3=${line2%%.list}
+export runid=$line3
 export OUT_DIR=${MAIN_DIR}/OUT/${LABEL}
 export OUT=${OUT_DIR}/${JOB_ID}
 export OUT_LOG=${OUT}/log
