@@ -4,6 +4,9 @@
 
 vector <vector<string>> QvQv=
 {
+  {"Q_TPC_L_ch_PLAIN", "Q_TPC_R_ch_PLAIN"},
+  {"Q_TPC_L_ch_RECENTERED", "Q_TPC_R_ch_RECENTERED"},
+  {"Q_TPC_L_ch_TWIST", "Q_TPC_R_ch_TWIST"},
   {"Q_TPC_L_ch_RESCALED", "Q_TPC_R_ch_RESCALED"}
 };
 
@@ -12,8 +15,14 @@ vector <string> Qv=
 
 vector <vector<string>> uvQv=
 {
+  {"u_TPC_L_ch_PLAIN", "Q_TPC_R_ch_PLAIN"},
+  {"u_TPC_R_ch_PLAIN", "Q_TPC_L_ch_PLAIN"},
+  {"u_TPC_L_ch_RECENTERED", "Q_TPC_R_ch_RECENTERED"},
+  {"u_TPC_R_ch_RECENTERED", "Q_TPC_L_ch_RECENTERED"},
+  {"u_TPC_L_ch_TWIST", "Q_TPC_R_ch_TWIST"},
+  {"u_TPC_R_ch_TWIST", "Q_TPC_L_ch_TWIST"},
   {"u_TPC_L_ch_RESCALED", "Q_TPC_R_ch_RESCALED"},
-  {"u_TPC_R_ch_RESCALED", "Q_TPC_L_ch_RESCALED"},
+  {"u_TPC_R_ch_RESCALED", "Q_TPC_L_ch_RESCALED"}
 };
 
 vector <string> uv= 
@@ -26,9 +35,9 @@ void correlate(string inputFiles="qn.root", string outputFile="corr.root")
   int nSamples = 50;
   Qn::AxisD centAxis({"evCent", {0., 5., 10., 15., 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80.}});
   Qn::AxisD vtxAxis({"evVtxZ", {-30.,-24.,-18.,-12.,-6.,0.,6.,12.,18.,24.,30.}});
-	Qn::AxisD ptAxis({"trPt", {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2., 2.2, 2.4, 2.6, 2.8, 3., 3.25, 3.5, 3.75, 4., 4.5, 5.});
-	Qn::AxisD etaAxis({"trEta", 20, -1., 1.});
-  auto axes_correlation = Qn::MakeAxes(centAxis); //, vtxAxis);
+  Qn::AxisD ptAxis({"trPt", {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2., 2.2, 2.4, 2.6, 2.8, 3., 3.25, 3.5, 3.75, 4., 4.5, 5.}});
+  Qn::AxisD etaAxis({"trEta", 1, -1., 1.});
+  auto axes_correlation = Qn::MakeAxes(centAxis);//, vtxAxis);
   TChain *c=makeChain(inputFiles, "tree");
   ROOT::RDataFrame d(*c);
   auto d_samples = Qn::Correlation::Resample(d, nSamples);
@@ -64,31 +73,78 @@ void correlate(string inputFiles="qn.root", string outputFile="corr.root")
   {
     std::array<std::string, 2> qn{corr.at(0), corr.at(1)};
     string corrName=corr.at(0)+"_"+corr.at(1);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_XX_", P2::xx(2, 2), wUnity, wn, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_YY_", P2::yy(2, 2), wUnity, wn, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_XY_", P2::xy(2, 2), wUnity, wn, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_YX_", P2::yx(2, 2), wUnity, wn, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_SP_", P2::ScalarProduct(2, 2), wUnity, wn, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_coscos_", P2::xx(2, 2), wDenomABSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_sinsin_", P2::yy(2, 2), wDenomABSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_sinsin_", P2::xy(2, 2), wDenomABSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_coscos_", P2::yx(2, 2), wDenomABSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_EP_", P2::ScalarProduct(2, 2), wDenomABSumWu, wy, qn, qn);
+
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_X2X2_", P2::xx(2, 2), wUnity, wn, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y2Y2_", P2::yy(2, 2), wUnity, wn, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_X2Y2_", P2::xy(2, 2), wUnity, wn, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y2X2_", P2::yx(2, 2), wUnity, wn, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_SP2_", P2::ScalarProduct(2, 2), wUnity, wn, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_cos2cos2_", P2::xx(2, 2), wDenomABSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_sin2sin2_", P2::yy(2, 2), wDenomABSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_sin2sin2_", P2::xy(2, 2), wDenomABSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_cos2cos2_", P2::yx(2, 2), wDenomABSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_EP2_", P2::ScalarProduct(2, 2), wDenomABSumWu, wy, qn, qn);
+
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_X3X3_", P2::xx(3, 3), wUnity, wn, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y3Y3_", P2::yy(3, 3), wUnity, wn, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_X3Y3_", P2::xy(3, 3), wUnity, wn, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y3X3_", P2::yx(3, 3), wUnity, wn, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_SP3_", P2::ScalarProduct(3, 3), wUnity, wn, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_cos3cos3_", P2::xx(3, 3), wDenomABSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_sin3sin3_", P2::yy(3, 3), wDenomABSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_sin3sin3_", P2::xy(3, 3), wDenomABSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_cos3cos3_", P2::yx(3, 3), wDenomABSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_EP3_", P2::ScalarProduct(3, 3), wDenomABSumWu, wy, qn, qn);
+
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_X4X4_", P2::xx(4, 4), wUnity, wn, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y4Y4_", P2::yy(4, 4), wUnity, wn, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_X4Y4_", P2::xy(4, 4), wUnity, wn, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y4X4_", P2::yx(4, 4), wUnity, wn, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_SP4_", P2::ScalarProduct(4, 4), wUnity, wn, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_cos4cos4_", P2::xx(4, 4), wDenomABSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_sin4sin4_", P2::yy(4, 4), wDenomABSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_sin4sin4_", P2::xy(4, 4), wDenomABSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_cos4cos4_", P2::yx(4, 4), wDenomABSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_EP4_", P2::ScalarProduct(4, 4), wDenomABSumWu, wy, qn, qn);
   }
   for (auto &corr:uvQv)
   {
     std::array<std::string, 2> qn{corr.at(0), corr.at(1)};
     string corrName=corr.at(0)+"_"+corr.at(1); 
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_XX_", P2::xx(2, 2), wSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_YY_", P2::yy(2, 2), wSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_XY_", P2::xy(2, 2), wSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_YX_", P2::yx(2, 2), wSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_SP_", P2::ScalarProduct(2, 2), wSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_Xcos_", P2::xx(2, 2), wDenomBSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_Ysin_", P2::yy(2, 2), wDenomBSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_Xsin_", P2::xy(2, 2), wDenomBSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_Ycos_", P2::yx(2, 2), wDenomBSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_EP_", P2::ScalarProduct(2, 2), wDenomBSumWu, wy, qn, qn);
+
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_X2X2_", P2::xx(2, 2), wSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y2Y2_", P2::yy(2, 2), wSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_X2Y2_", P2::xy(2, 2), wSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y2X2_", P2::yx(2, 2), wSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_SP2_", P2::ScalarProduct(2, 2), wSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_X2cos2_", P2::xx(2, 2), wDenomBSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y2sin2_", P2::yy(2, 2), wDenomBSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_X2sin2_", P2::xy(2, 2), wDenomBSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y2cos2_", P2::yx(2, 2), wDenomBSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_EP2_", P2::ScalarProduct(2, 2), wDenomBSumWu, wy, qn, qn);
+
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_X3X3_", P2::xx(3, 3), wSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y3Y3_", P2::yy(3, 3), wSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_X3Y3_", P2::xy(3, 3), wSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y3X3_", P2::yx(3, 3), wSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_SP3_", P2::ScalarProduct(3, 3), wSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_X3cos3_", P2::xx(3, 3), wDenomBSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y3sin3_", P2::yy(3, 3), wDenomBSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_X3sin3_", P2::xy(3, 3), wDenomBSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y3cos3_", P2::yx(3, 3), wDenomBSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_EP3_", P2::ScalarProduct(3, 3), wDenomBSumWu, wy, qn, qn);
+
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_X4X4_", P2::xx(4, 4), wSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y4Y4_", P2::yy(4, 4), wSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_X4Y4_", P2::xy(4, 4), wSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y4X4_", P2::yx(4, 4), wSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_SP4_", P2::ScalarProduct(4, 4), wSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_X4cos4_", P2::xx(4, 4), wDenomBSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y4sin4_", P2::yy(4, 4), wDenomBSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_X4sin4_", P2::xy(4, 4), wDenomBSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_Y4cos4_", P2::yx(4, 4), wDenomBSumWu, wy, qn, qn);
+    //corrBuilder.AddCorrelationWithInternalReader(corrName+"_EP4_", P2::ScalarProduct(4, 4), wDenomBSumWu, wy, qn, qn);
+
     //corrBuilder.AddCorrelationWithInternalReader(corrName+"_d2_", P2::d2(2), wSumWu, wy, qn, qn);
     //corrBuilder.AddCorrelationWithInternalReader(corrName+"_d4_", P4::d4(2), wSumWu, wy, qn, qn);
     //corrBuilder.AddCorrelationWithInternalReader(corrName+"_d2_", P2::d2(2), wUnity, wy, qn, qn);

@@ -11,6 +11,128 @@ TChain* makeChain(string& fileName, const char* treename) {
   return chain;
 }
 
+//--------------------------------------------------------------------------------------------------------------------------//
+//this function simply connects the gain values read in to the BBC azimuthal distribution
+//since tiles 7 and 9 (+ 13 and 15) share a gain value it is ambiguous how to assign the geometry here
+//I prefer assigning the angle between the tiles thus "greying out" the adcs. 
+//Others have assigned all of the adc to one (exclusive) or the the other. 
+Float_t BBC_GetPhi(const Int_t eastWest, const Int_t tileId)
+{
+  //float GetPhiInBBC(int eastWest, int bbcN) { //tileId=0 to 23
+  const float Pi = TMath::Pi();
+  const float Phi_div = Pi / 6;
+  float bbc_phi = Phi_div;
+  switch(tileId) {
+    case 0: bbc_phi = 3.*Phi_div;
+  break;
+    case 1: bbc_phi = Phi_div;
+  break;
+    case 2: bbc_phi = -1.*Phi_div;
+  break;
+    case 3: bbc_phi = -3.*Phi_div;
+  break;
+    case 4: bbc_phi = -5.*Phi_div;
+  break;
+    case 5: bbc_phi = 5.*Phi_div;
+  break;
+    //case 6: bbc_phi= (mRndm.Rndm() > 0.5) ? 2.*Phi_div:4.*Phi_div;	//tiles 7 and 9 are gained together we randomly assign the gain to one XOR the other
+    case 6: bbc_phi = 3.*Phi_div;
+  break;
+    case 7: bbc_phi = 3.*Phi_div;
+  break;
+    case 8: bbc_phi = Phi_div;
+  break;
+    case 9: bbc_phi = 0.;
+  break;
+    case 10: bbc_phi = -1.*Phi_div;
+  break;
+    //case 11: bbc_phi = (mRndm.Rndm() > 0.5) ? -2.*Phi_div:-4.*Phi_div;	//tiles 13 and 15 are gained together
+    case 11: bbc_phi = -3.*Phi_div;
+  break;
+    case 12: bbc_phi = -3.*Phi_div;
+  break;
+    case 13: bbc_phi = -5.*Phi_div;
+  break;
+    case 14: bbc_phi = Pi;
+  break;
+    case 15: bbc_phi = 5.*Phi_div;
+  break;
+  }
+
+  //if we're looking at the east BBC we need to flip around x in the STAR coordinates, 
+  //a line parallel to the beam would go through tile 1 on the W BBC and tile 3 on the 
+  if(0 == eastWest){
+    if (bbc_phi > -0.001){ //this is not a >= since we are talking about finite adcs -- not to important
+      bbc_phi = Pi - bbc_phi;
+    }
+    else {
+      bbc_phi= -Pi - bbc_phi;
+    }
+  }
+
+  if(bbc_phi < 0.0) bbc_phi += 2.*Pi;
+  if(bbc_phi > 2.*Pi) bbc_phi -= 2.*Pi;
+
+  return bbc_phi;
+}
+
+Double_t GetZDCPosition(Int_t eastwest, Int_t verthori, Int_t strip)
+// Get position of each slat;strip starts from 0
+{
+
+  std::vector<Double_t> zdcsmd_x = {0.5,2,3.5,5,6.5,8,9.5};
+  std::vector<Double_t> zdcsmd_y = {1.25,3.25,5.25,7.25,9.25,11.25,13.25,15.25};
+
+  Double_t mZDCSMDCenterex = 4.72466;
+  Double_t mZDCSMDCenterey = 5.53629;
+  Double_t mZDCSMDCenterwx = 4.39604;
+  Double_t mZDCSMDCenterwy = 5.19968;
+
+  if(eastwest==0 && verthori==0) return zdcsmd_x.at(strip)-mZDCSMDCenterex;
+  if(eastwest==1 && verthori==0) return mZDCSMDCenterwx-zdcsmd_x.at(strip);
+  if(eastwest==0 && verthori==1) return zdcsmd_y.at(strip)/sqrt(2.)-mZDCSMDCenterey;
+  if(eastwest==1 && verthori==1) return zdcsmd_y.at(strip)/sqrt(2.)-mZDCSMDCenterwy;
+
+  return -999.;
+}
+
+Double_t GetZDCPhi(Int_t eastwest, Int_t verthori, Int_t strip)
+{
+  double position = GetZDCPosition(eastwest, verthori, strip);
+  if (position == -999.) return -999.;
+  
+  double cos, sin, phi;
+  cos = -999.;
+  sin = -999.;
+  if(eastwest==0 && verthori==0)
+  {
+    cos = position;
+    sin = 0.;
+  }
+  if(eastwest==1 && verthori==0)
+  {
+    cos = position;
+    sin = 0.;
+  }
+  if(eastwest==0 && verthori==1)
+  {
+    cos = 0.;
+    sin = position;
+  }
+  if(eastwest==1 && verthori==1)
+  {
+    cos = 0.;
+    sin = position;
+  }
+
+  if (cos == -999.) return -999.;
+  if (sin == -999.) return -999.;
+
+  phi = atan2(sin,cos);
+
+  return phi;
+}
+
 TTree* makeTree4RDF(std::string fileName) {
 	StFemtoDstReader* femtoReader = new StFemtoDstReader(fileName.c_str());
   femtoReader->Init();
@@ -34,6 +156,10 @@ TTree* makeTree4RDF(std::string fileName) {
 	std::vector<double> tr_px, tr_py, tr_pz;
 	std::vector<float> tr_dca, tr_chi2, tr_dedx, tr_tofm2, tr_ch;
 	std::vector<float> tr_nSigEl, tr_nSigPi, tr_nSigKa, tr_nSigPr;
+	std::vector<int> bbc_e_id, bbc_w_id;
+	std::vector<float> bbc_e_en, bbc_w_en, bbc_e_phi, bbc_w_phi;
+	std::vector<int> zdc_e_id, zdc_w_id, zdc_e_type, zdc_w_type;
+	std::vector<float> zdc_e_en, zdc_w_en;
 
 	TTree *tree = new TTree("tStarData", "Simplified tree with STAR data needed for QnTools");
 	tree->Branch("ev_cent", &ev_cent);

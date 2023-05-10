@@ -13,6 +13,8 @@
 
 export SKIPED_TASKS=$1
 
+export programm_name=run5
+
 export JOB_ID=${SLURM_ARRAY_JOB_ID}
 export TASK_ID=${SLURM_ARRAY_TASK_ID}
 
@@ -30,8 +32,6 @@ source /mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/env.sh
 export START_DIR=${PWD}
 export MAIN_DIR=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst
 
-/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/OUT/auau_200gev_runs/380640/files/qn_auau_200gev_runs_380640_1000_run_12142001_part0.root
-
 # File list (of filelists) for UrQMD mcpico data at 5 GeV
 export FILELIST=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/macros/runlists/runlists_qn_auau_200gev.list
 export SHORTNAME1=`basename $FILELIST`
@@ -39,7 +39,7 @@ export SHORTNAME11=${SHORTNAME1%.list}
 export SHORTNAME12=${SHORTNAME11#runlists_qn_}
 export LABEL1=${SHORTNAME12}_correlate
 #export LABEL2=flow_ch
-export LABEL=${LABEL1} #${LABEL1}_${LABEL2}
+export LABEL=${LABEL1}_${programm_name} #${LABEL1}_${LABEL2}
 
 # Config file for Qn measurements
 export MACRO_EXE=${MAIN_DIR}/correlate.C

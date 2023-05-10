@@ -6,7 +6,7 @@ INPUT_DIR=$1
 NAME_PATTERN=$2
 
 #-Example usage
-# . GenerateLists.sh /mnt/pool/rhic/2/nigmatkulov/femtoDst/auau/200gev/ ./runlists/runlist_
+# . GenerateRunLits.sh /mnt/pool/rhic/2/nigmatkulov/femtoDst/auau/200gev/ ./runlists/runlist_
 
 #/mnt/pool/nica/5/rhic2/nigmatkulov/femtoDst/auau/200gev/1212/st_physics_12126101_raw_1010001.femtoDst.root
 
