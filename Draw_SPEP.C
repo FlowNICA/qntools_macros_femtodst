@@ -21,9 +21,10 @@ void Draw_SPEP(TString inFileName="", TString outFileName="./test_graphs.root")
     const std::vector<std::string> pidnames = {"ch"}; // Total: {"ch", "protons", "kaons", "akaons", "pions", "apions"};
 
     // Set correction and methods naming
+    // const std::vector<std::string> corrnames = {"PLAIN", "RECENTERED", "TWIST", "RESCALED"}; //Total: {"PLAIN", "RECENTERED", "TWIST", "RESCALED"};
     const std::vector<std::string> corrnames = {"RESCALED"}; //Total: {"PLAIN", "RECENTERED", "TWIST", "RESCALED"};
-    const std::vector<std::string> QQ_methods = {"XX", "YY", "SP", "coscos", "sinsin", "EP"};
-    const std::vector<std::string> uQ_methods = {"XX", "YY", "SP", "Xcos", "Ysin", "EP"};
+    const std::vector<std::string> QQ_methods = {"X2X2", "Y2Y2", "SP2", "cos2cos2", "sin2sin2", "EP2"};
+    const std::vector<std::string> uQ_methods = {"X2X2", "Y2Y2", "SP2", "X2cos2", "Y2sin2", "EP2"};
 
     // Set up u-, Q-vectors naming
     const std::vector<std::string> uv_tpc_names = {"u_TPC_L", "u_TPC_R"};
@@ -126,33 +127,65 @@ void Draw_SPEP(TString inFileName="", TString outFileName="./test_graphs.root")
     std::vector<Qn::DataContainerStatCalculate> v2_tpc;
     std::vector<std::string> v2_tpc_names;
     int ires=0;
+    int icorr=0;
     for (int i = 0; i < (int)((float)uQ_tpc.size()/2.); i++)
     {
-      auto v2_obs = Merge(uQ_tpc.at(i), uQ_tpc.at((int)((float)uQ_tpc.size()/2.)+i)); // Merge <uLQR> and <uRQL>
-      Qn::DataContainerStatCalculate v2_general;
+      auto v2L_obs = uQ_tpc.at(i); // <uLQR>
+      auto v2R_obs = uQ_tpc.at((int)((float)uQ_tpc.size()/2.)+i); // <uLQR>
+      auto v2_obs = Merge(v2L_obs, v2R_obs); // Merge <uLQR> and <uRQL>
+      Qn::DataContainerStatCalculate v2_general, v2L_general, v2R_general;
       for (int j=0; j < uQ_methods.size(); j++)
       {
         if (uQ_tpc_names.at(i).find(uQ_methods.at(j)) == std::string::npos) continue; // methods for <uQ> and <QQ> are not equal - skip
-        if (uQ_tpc_names.at(i).find("_SP_") != std::string::npos || 
-          uQ_tpc_names.at(i).find("_EP_") != std::string::npos)
+        if (uQ_tpc_names.at(i).find("_SP") != std::string::npos || 
+          uQ_tpc_names.at(i).find("_EP") != std::string::npos)
         {
           v2_general = v2_obs / res2_tpc.at(j); // full EP or SP methods
+          v2L_general = v2L_obs / res2_tpc.at(j); // full EP or SP methods
+          v2R_general = v2R_obs / res2_tpc.at(j); // full EP or SP methods
         }
         else
         {
           v2_general = sqrt(2.) * v2_obs / res2_tpc.at(j); // components: XX, YY, ...
+          v2L_general = sqrt(2.) * v2L_obs / res2_tpc.at(j); // components: XX, YY, ...
+          v2R_general = sqrt(2.) * v2L_obs / res2_tpc.at(j); // components: XX, YY, ...
         }
         ires = j;
         break;
+      }
+      for (int iCorr=0; iCorr < corrnames.size(); iCorr++)
+      {
+        if (uQ_tpc_names.at(i).find(corrnames.at(iCorr)) != std::string::npos) icorr = iCorr;
       }
       // Loop over centralities
       for (auto &cent : cent_ranges)
       {
         auto v2_cent = v2_general.Rebin({"evCent", 1, cent.first, cent.second});
         auto v2_pT = v2_cent.Projection({"trPt"});
-        v2_pT = v2_pT.Rebin({"trPt", {0.2, 0.4, 0.6, 0.8, 1., 1.5, 2., 3.}});
+        v2_pT = v2_pT.Rebin({"trPt", {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.8, 3.25, 3.75, 4.5}});
         v2_pT.SetErrors(Qn::Stat::ErrorType::BOOTSTRAP);
-        v2_tpc_names.push_back("vn_TPC_ch_"+uQ_methods.at(ires)+"_"+"cent"+to_string((int)cent.first)+to_string((int)cent.second));
+        // v2_tpc_names.push_back(uQ_tpc_names.at(i)+"cent"+to_string((int)cent.first)+to_string((int)cent.second));
+        v2_tpc_names.push_back("vn_TPC_ch_"+corrnames.at(icorr)+"_"+uQ_methods.at(ires)+"_"+"cent"+to_string((int)cent.first)+to_string((int)cent.second));
+        v2_tpc.push_back(v2_pT);
+      }
+      for (auto &cent : cent_ranges)
+      {
+        auto v2_cent = v2L_general.Rebin({"evCent", 1, cent.first, cent.second});
+        auto v2_pT = v2_cent.Projection({"trPt"});
+        v2_pT = v2_pT.Rebin({"trPt", {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.8, 3.25, 3.75, 4.5}});
+        v2_pT.SetErrors(Qn::Stat::ErrorType::BOOTSTRAP);
+        // v2_tpc_names.push_back(uQ_tpc_names.at(i)+"cent"+to_string((int)cent.first)+to_string((int)cent.second));
+        v2_tpc_names.push_back("vnL_TPC_ch_"+corrnames.at(icorr)+"_"+uQ_methods.at(ires)+"_"+"cent"+to_string((int)cent.first)+to_string((int)cent.second));
+        v2_tpc.push_back(v2_pT);
+      }
+      for (auto &cent : cent_ranges)
+      {
+        auto v2_cent = v2R_general.Rebin({"evCent", 1, cent.first, cent.second});
+        auto v2_pT = v2_cent.Projection({"trPt"});
+        v2_pT = v2_pT.Rebin({"trPt", {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.8, 3.25, 3.75, 4.5}});
+        v2_pT.SetErrors(Qn::Stat::ErrorType::BOOTSTRAP);
+        // v2_tpc_names.push_back(uQ_tpc_names.at(i)+"cent"+to_string((int)cent.first)+to_string((int)cent.second));
+        v2_tpc_names.push_back("vnR_TPC_ch_"+corrnames.at(icorr)+"_"+uQ_methods.at(ires)+"_"+"cent"+to_string((int)cent.first)+to_string((int)cent.second));
         v2_tpc.push_back(v2_pT);
       }
     }
@@ -178,6 +211,14 @@ void Draw_SPEP(TString inFileName="", TString outFileName="./test_graphs.root")
       graph->SetTitle(Form("%s;%s", v2_tpc_names.at(i).c_str(), "p_{T}, GeV/c;v_{2}"));
       graph->Write();
     }
+
+    std::cout << "Written output resolutions:" << std::endl;
+    for (int i=0; i < res2_tpc.size(); i++)
+      std::cout << "\t" << Form("res_%s", QQ_tpc_names.at(i).c_str()) << std::endl;
+
+    std::cout << "Writing output flow:" << std::endl;
+    for (int i=0; i < v2_tpc.size(); i++)
+      std::cout << "\t" << Form("%s", v2_tpc_names.at(i).c_str()) << std::endl;
 
     foGraphs->Close();
 }

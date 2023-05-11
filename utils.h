@@ -151,15 +151,20 @@ TTree* makeTree4RDF(std::string fileName) {
   }
 	Long64_t events2read = femtoReader->chain()->GetEntries();
 
+  int ev_tofMatched;
 	float ev_cent, ev_vtxX, ev_vtxY, ev_vtxZ, ev_vpdZ, ev_runId;
 	std::vector<int> tr_Nhits, tr_NhitsFit, tr_NhitsPoss, tr_isTofTrack;
 	std::vector<double> tr_px, tr_py, tr_pz;
 	std::vector<float> tr_dca, tr_chi2, tr_dedx, tr_tofm2, tr_ch;
 	std::vector<float> tr_nSigEl, tr_nSigPi, tr_nSigKa, tr_nSigPr;
-	std::vector<int> bbc_e_id, bbc_w_id;
-	std::vector<float> bbc_e_en, bbc_w_en, bbc_e_phi, bbc_w_phi;
-	std::vector<int> zdc_e_id, zdc_w_id, zdc_e_type, zdc_w_type;
-	std::vector<float> zdc_e_en, zdc_w_en;
+	std::vector<int> bbc_id, bbc_side; // id, side (west, east)
+	std::vector<float> bbc_en, bbc_phi;
+	std::vector<int> zdc_id, zdc_side, zdc_type; // id, side (west, east), type (vertical, horizontal)
+	std::vector<float> zdc_en, zdc_phi;
+
+  const int fNBbcModules = 16;
+  const int fNZdcSmdStripsHorizontal = 8;
+  const int fNZdcSmdStripsVertical   = 7;
 
 	TTree *tree = new TTree("tStarData", "Simplified tree with STAR data needed for QnTools");
 	tree->Branch("ev_cent", &ev_cent);
@@ -167,7 +172,8 @@ TTree* makeTree4RDF(std::string fileName) {
 	tree->Branch("ev_vtxY", &ev_vtxY);
 	tree->Branch("ev_vtxZ", &ev_vtxZ);
 	tree->Branch("ev_vpdZ", &ev_vpdZ);
-	//tree->Branch("ev_runId", &ev_runId);
+	tree->Branch("ev_tofMatched", &ev_tofMatched);
+	// tree->Branch("ev_runId", &ev_runId);
 	tree->Branch("tr_Nhits", &tr_Nhits);
 	tree->Branch("tr_NhitsFit", &tr_NhitsFit);
 	tree->Branch("tr_NhitsPoss", &tr_NhitsPoss);
@@ -184,6 +190,15 @@ TTree* makeTree4RDF(std::string fileName) {
 	tree->Branch("tr_nSigPi", &tr_nSigPi);
 	tree->Branch("tr_nSigKa", &tr_nSigKa);
 	tree->Branch("tr_nSigPr", &tr_nSigPr);
+	tree->Branch("bbc_id", &bbc_id);
+	tree->Branch("bbc_side", &bbc_side);
+	tree->Branch("bbc_en", &bbc_en);
+	tree->Branch("bbc_phi", &bbc_phi);
+  tree->Branch("zdc_id", &zdc_id);
+	tree->Branch("zdc_side", &zdc_side);
+	tree->Branch("zdc_type", &zdc_type);
+	tree->Branch("zdc_en", &zdc_en);
+	tree->Branch("zdc_phi", &zdc_phi);
 
   std::cout << "Number of events to read: " << events2read << std::endl;
 	// Loop over events
@@ -240,6 +255,8 @@ TTree* makeTree4RDF(std::string fileName) {
 		tr_nSigKa.clear();
 		tr_nSigPr.clear();
 
+    ev_tofMatched = 0;
+
     // Track loop
     for(Int_t iTrk=0; iTrk<nTracks; iTrk++) {
 
@@ -250,6 +267,7 @@ TTree* makeTree4RDF(std::string fileName) {
 
       // Must be a primary track
       if ( !femtoTrack->isPrimary() ) continue;
+      ev_tofMatched++;
 
       TVector3 mom = femtoTrack->gMom();
       TVector3 dca = femtoTrack->gDCA(pVtx);
@@ -272,6 +290,43 @@ TTree* makeTree4RDF(std::string fileName) {
 			tr_nSigPr.push_back(femtoTrack->nSigmaProton());
 
 		} // track loop
+
+    // BBC loop
+    bbc_id.clear();
+    bbc_side.clear();
+    bbc_en.clear();
+    bbc_phi.clear();
+    bbc_id.resize(fNBbcModules*2);
+    bbc_side.resize(fNBbcModules*2);
+    bbc_en.resize(fNBbcModules*2);
+    bbc_phi.resize(fNBbcModules*2);
+    for (int iBbcMod=0; iBbcMod<fNBbcModules; iBbcMod++)
+    {
+
+    } // Bbc loop
+
+    // ZDC loop
+    zdc_id.clear();
+    zdc_side.clear();
+    zdc_type.clear();
+    zdc_en.clear();
+    zdc_phi.clear();
+    zdc_id.resize(2*(fNZdcSmdStripsHorizontal+fNZdcSmdStripsVertical));
+    zdc_side.resize(2*(fNZdcSmdStripsHorizontal+fNZdcSmdStripsVertical));
+    zdc_type.resize(2*(fNZdcSmdStripsHorizontal+fNZdcSmdStripsVertical));
+    zdc_en.resize(2*(fNZdcSmdStripsHorizontal+fNZdcSmdStripsVertical));
+    zdc_phi.resize(2*(fNZdcSmdStripsHorizontal+fNZdcSmdStripsVertical));
+    // Horizontal
+    for (int iZdcStrip=0; iZdcStrip<fNZdcSmdStripsHorizontal; iZdcStrip++)
+    {
+
+    } // Bbc loop - horizontal
+    // Vertical
+    for (int iZdcStrip=0; iZdcStrip<fNZdcSmdStripsVertical; iZdcStrip++)
+    {
+
+    } // Bbc loop - vertical
+
 		tree->Fill();
 	} // event loop
 	femtoReader->Finish();
