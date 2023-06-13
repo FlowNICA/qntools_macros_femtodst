@@ -160,7 +160,7 @@ void Draw_SPEP(TString inFileName="", TString outFileName="./test_graphs.root")
       // Loop over centralities
       for (auto &cent : cent_ranges)
       {
-        auto v2_cent = v2_general.Rebin({"evCent", 1, cent.first, cent.second});
+        auto v2_cent = v2_general.Rebin({"evCent", 1, cent.first, cent.second-1});
         auto v2_pT = v2_cent.Projection({"trPt"});
         v2_pT = v2_pT.Rebin({"trPt", {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.8, 3.25, 3.75, 4.5}});
         v2_pT.SetErrors(Qn::Stat::ErrorType::BOOTSTRAP);
@@ -170,7 +170,7 @@ void Draw_SPEP(TString inFileName="", TString outFileName="./test_graphs.root")
       }
       for (auto &cent : cent_ranges)
       {
-        auto v2_cent = v2L_general.Rebin({"evCent", 1, cent.first, cent.second});
+        auto v2_cent = v2L_general.Rebin({"evCent", 1, cent.first, cent.second-1});
         auto v2_pT = v2_cent.Projection({"trPt"});
         v2_pT = v2_pT.Rebin({"trPt", {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.8, 3.25, 3.75, 4.5}});
         v2_pT.SetErrors(Qn::Stat::ErrorType::BOOTSTRAP);
@@ -180,7 +180,7 @@ void Draw_SPEP(TString inFileName="", TString outFileName="./test_graphs.root")
       }
       for (auto &cent : cent_ranges)
       {
-        auto v2_cent = v2R_general.Rebin({"evCent", 1, cent.first, cent.second});
+        auto v2_cent = v2R_general.Rebin({"evCent", 1, cent.first, cent.second-1});
         auto v2_pT = v2_cent.Projection({"trPt"});
         v2_pT = v2_pT.Rebin({"trPt", {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.8, 3.25, 3.75, 4.5}});
         v2_pT.SetErrors(Qn::Stat::ErrorType::BOOTSTRAP);

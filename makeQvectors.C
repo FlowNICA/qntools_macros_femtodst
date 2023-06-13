@@ -122,7 +122,7 @@ void setupQvectors()
   Qn::GainEqualization gain;
   gain.SetEqualizationMethod(Qn::GainEqualization::Method::AVERAGE);
   gain.SetNoOfEntriesThreshold(1);
-  gain.gain.SetUseChannelGroupsWeights(true);
+  gain.SetUseChannelGroupsWeights(true);
 
   Qn::Recentering recentering;
   recentering.SetApplyWidthEqualization(false);
