@@ -280,7 +280,7 @@ TTree* makeTree4RDF(std::string fileName) {
 			tr_NhitsFit.push_back(femtoTrack->nHitsFit());
 			tr_NhitsPoss.push_back(femtoTrack->nHitsPoss());
 			tr_chi2.push_back(femtoTrack->chi2());
-			tr_isTofTrack.push_back((int)femtoTrack->isTofTrack());
+			tr_isTofTrack.push_back((int) (femtoTrack->isTofTrack()) ? 1 : 0);
 			tr_dedx.push_back(femtoTrack->dEdx());
 			tr_tofm2.push_back(femtoTrack->massSqr());
 			tr_ch.push_back(femtoTrack->charge());

@@ -30,48 +30,48 @@ filteredDF defineVariables(definedDF &d)
   // Define function to get p from px, py, pz
   auto getP = [](const ROOT::VecOps::RVec<Double_t> &px, const ROOT::VecOps::RVec<Double_t> &py, const ROOT::VecOps::RVec<Double_t> &pz)
   {
-    auto p = ROOT::VecOps::Map(px, py, pz, [](float x, float y, float z)
-                               { return sqrt(x * x + y * y + z * z); });
+    auto p = ROOT::VecOps::Map(px, py, pz, [](double x, double y, double z)
+                               { return (double)sqrt(x * x + y * y + z * z); });
     return p;
   };
 
   // Define function to get pt from px, py
   auto getPt = [](const ROOT::VecOps::RVec<Double_t> &px, const ROOT::VecOps::RVec<Double_t> &py)
   {
-    auto pt = ROOT::VecOps::Map(px, py, [](float x, float y)
-                                { return sqrt(x * x + y * y); });
+    auto pt = ROOT::VecOps::Map(px, py, [](double x, double y)
+                                { return (double)sqrt(x * x + y * y); });
     return pt;
   };
 
   // Define function to get eta from px, py, pz
   auto getEta = [](const ROOT::VecOps::RVec<Double_t> &px, const ROOT::VecOps::RVec<Double_t> &py, const ROOT::VecOps::RVec<Double_t> &pz)
   {
-    auto eta = ROOT::VecOps::Map(px, py, pz, [](float x, float y, float z)
+    auto eta = ROOT::VecOps::Map(px, py, pz, [](double x, double y, double z)
                                  { 
-      auto mod = sqrt(x*x + y*y + z*z);
+      auto mod = (double)sqrt(x*x + y*y + z*z);
       if (mod == z) return -999.;
-      return 0.5 * log( (mod + z)/(mod - z) ); });
+      return (double)(0.5 * log( (mod + z)/(mod - z) )); });
     return eta;
   };
 
   // Define function to get azimuthal angle from px, py
   auto getPhi = [](const ROOT::VecOps::RVec<Double_t> &px, const ROOT::VecOps::RVec<Double_t> &py)
   {
-    auto phi = ROOT::VecOps::Map(px, py, [](float x, float y)
-                                 { return atan2(y, x); });
+    auto phi = ROOT::VecOps::Map(px, py, [](double x, double y)
+                                 { return (double)atan2(y, x); });
     return phi;
   };
 
   // Assign a random number from 1 to 4
   auto rndNum = [](const ROOT::VecOps::RVec<Double_t> &px)
   {
-    auto result = ROOT::VecOps::Map(px, [](float x)
+    auto result = ROOT::VecOps::Map(px, [](double x)
                                     { 
 			// Prepare variables for a random sub-event determination
 			std::random_device rd; 
 			std::mt19937 gen(rd()); 
 			std::uniform_int_distribution<> distr(1,4); // 4 sub-events division
-			return (float) distr(gen); });
+			return (double) distr(gen); });
     return result;
   };
 
@@ -81,14 +81,16 @@ filteredDF defineVariables(definedDF &d)
                     const ROOT::VecOps::RVec<Float_t> &nsigPi, const ROOT::VecOps::RVec<Float_t> &nsigKa)
   {
     auto result = ROOT::VecOps::Map(isTof, p, m2, nsigPi, nsigKa, [](int _isTof, double _p, float _m2, float _nsigPi, float _nsigKa)
-                                    {
+    {
       int ispion = 0;
-      if (!_isTof && abs(_nsigPi) < 2 && _p > 0.2 && _p < 0.6)
+      if (_isTof!=1 && abs(_nsigPi) < 2. && _p > 0.2 && _p < 0.6)
         ispion = 1;
-      if (!_isTof && abs(_nsigPi) < 2. && abs(_nsigKa) > 2. && _p > 0.6 && _p < 0.7)
+      if (_isTof!=1 && abs(_nsigPi) < 2. && abs(_nsigKa) > 2. && _p > 0.6 && _p < 0.7)
         ispion = 1;
-      if (_isTof && abs(_nsigPi) < 3. && _m2 > -0.15 && _m2 < 0.1 && _p > 0.2 && _p < 3.4)
-        ispion = 1; });
+      if (_isTof==1 && abs(_nsigPi) < 3. && _m2 > -0.15 && _m2 < 0.1 && _p > 0.2 && _p < 3.4)
+        ispion = 1;
+       return ispion;	
+    });
     return result;
   };
 
@@ -97,14 +99,16 @@ filteredDF defineVariables(definedDF &d)
                     const ROOT::VecOps::RVec<Float_t> &nsigPi, const ROOT::VecOps::RVec<Float_t> &nsigKa)
   {
     auto result = ROOT::VecOps::Map(isTof, p, m2, nsigPi, nsigKa, [](int _isTof, double _p, float _m2, float _nsigPi, float _nsigKa)
-                                    {
+    {
       int iskaon = 0;
-      if (!_isTof && abs(_nsigKa) < 2 && _p > 0.2 && _p < 0.5)
+      if (_isTof!=1 && abs(_nsigKa) < 2 && _p > 0.2 && _p < 0.5)
         iskaon = 1;
-      if (!_isTof && abs(_nsigKa) < 2. && abs(_nsigPi) > 3. && _p > 0.5 && _p < 0.7)
+      if (_isTof!=1 && abs(_nsigKa) < 2. && abs(_nsigPi) > 3. && _p > 0.5 && _p < 0.7)
         iskaon = 1;
-      if (_isTof && abs(_nsigKa) < 3. && _m2 > 0.2 && _m2 < 0.32 && _p > 0.2 && _p < 3.4)
-        iskaon = 1; });
+      if (_isTof==1 && abs(_nsigKa) < 3. && _m2 > 0.2 && _m2 < 0.32 && _p > 0.2 && _p < 3.4)
+        iskaon = 1;
+       return iskaon;	
+    });
     return result;
   };
 
@@ -115,12 +119,14 @@ filteredDF defineVariables(definedDF &d)
     auto result = ROOT::VecOps::Map(isTof, p, m2, nsigPi, nsigPr, [](int _isTof, double _p, float _m2, float _nsigPi, float _nsigPr)
                                     {
       int isproton = 0;
-      if (!_isTof && abs(_nsigPr) < 2 && _p > 0.4 && _p < 0.9)
+      if (_isTof!=1 && abs(_nsigPr) < 2 && _p > 0.4 && _p < 0.9)
         isproton = 1;
-      if (!_isTof && abs(_nsigPr) < 2. && abs(_nsigPi) > 3. && _p > 0.9 && _p < 1.2)
+      if (_isTof!=1 && abs(_nsigPr) < 2. && abs(_nsigPi) > 3. && _p > 0.9 && _p < 1.2)
         isproton = 1;
-      if (_isTof && abs(_nsigPr) < 3. && _m2 > 0.75 && _m2 < 1.2 && _p > 0.2 && _p < 3.4)
-        isproton = 1; });
+      if (_isTof==1 && abs(_nsigPr) < 3. && _m2 > 0.75 && _m2 < 1.2 && _p > 0.2 && _p < 3.4)
+        isproton = 1; 
+      return isproton;
+    });
     return result;
   };
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -142,6 +148,7 @@ filteredDF defineVariables(definedDF &d)
     .Define("trRnd4Sub", rndNum, {"tr_px"})
     .Define("trIsTof", "tr_isTofTrack")
     .Define("trM2", "tr_tofm2")
+    .Define("trDedx", "tr_dedx")
     .Define("trNsigEl", "tr_nSigEl")
     .Define("trNsigPi", "tr_nSigPi")
     .Define("trNsigKa", "tr_nSigKa")
@@ -158,7 +165,7 @@ filteredDF defineVariables(definedDF &d)
       {
           "ev(Cent|VtxX|VtxY|VtxZ|VpdZ)",                                               // kEvent
           "",                                                                           // kChannel
-          "tr(P|Pt|Eta|Phi|Ch|Nhits|NhitsFit|NhitsPoss|Dca|Rnd4Sub|PidPi|PidKa|PidPr)", // kRecParticle
+          "tr(P|Pt|Eta|Phi|Ch|Nhits|NhitsFit|NhitsPoss|Dca|Rnd4Sub|PidPi|PidKa|PidPr|M2|NsigPi|NsigKa|NsigPr|Dedx)", // kRecParticle
           ""                                                                            // kSimParticle
       };
 
@@ -233,7 +240,7 @@ void setupQvectors()
   man.AddCutOnDetector(name.c_str(), {"trNhitsPoss"}, [](float nhitsposs){ return (nhitsposs > 0); },"nhitstrNhitsPoss_cut");
   man.AddCutOnDetector(name.c_str(), {"trNhitsFit", "trNhitsPoss"}, [](float nhits, float nhitsposs){ return ((double)nhits / (double)nhitsposs > 0.51); },"nhitsRatio_cut");
   man.AddCutOnDetector(name.c_str(), {"trDca"}, [](float dca){ return (abs(dca) < 1.); },"dca_cut");
-  man.AddCutOnDetector(name.c_str(), {"trPidPi"}, [](float pid){ return (pid == 1); },"pid_cut");
+  man.AddCutOnDetector(name.c_str(), {"trPidPi"}, [](int pid){ return (pid == 1); },"pid_cut");
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
@@ -241,6 +248,11 @@ void setupQvectors()
   man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trM2", 170, -0.2, 1.5}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trP", 175, 0., 3.5}, {"trDedx", 325, 0., 6.5e-5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigPi", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigKa", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigPr", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
 
   name = "u_TPC_L_kaon";
   man.AddDetector(name.c_str(), track, "trPhi", "trPt", corrAxesParticle, {1, 2, 3, 4}, sumW);
@@ -252,7 +264,7 @@ void setupQvectors()
   man.AddCutOnDetector(name.c_str(), {"trNhitsPoss"}, [](float nhitsposs){ return (nhitsposs > 0); },"nhitstrNhitsPoss_cut");
   man.AddCutOnDetector(name.c_str(), {"trNhitsFit", "trNhitsPoss"}, [](float nhits, float nhitsposs){ return ((double)nhits / (double)nhitsposs > 0.51); },"nhitsRatio_cut");
   man.AddCutOnDetector(name.c_str(), {"trDca"}, [](float dca){ return (abs(dca) < 1.); },"dca_cut");
-  man.AddCutOnDetector(name.c_str(), {"trPidKa"}, [](float pid){ return (pid == 1); },"pid_cut");
+  man.AddCutOnDetector(name.c_str(), {"trPidKa"}, [](int pid){ return (pid == 1); },"pid_cut");
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
@@ -260,6 +272,11 @@ void setupQvectors()
   man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trM2", 170, -0.2, 1.5}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trP", 175, 0., 3.5}, {"trDedx", 325, 0., 6.5e-5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigPi", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigKa", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigPr", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
 
   name = "u_TPC_L_proton";
   man.AddDetector(name.c_str(), track, "trPhi", "trPt", corrAxesParticle, {1, 2, 3, 4}, sumW);
@@ -271,7 +288,7 @@ void setupQvectors()
   man.AddCutOnDetector(name.c_str(), {"trNhitsPoss"}, [](float nhitsposs){ return (nhitsposs > 0); },"nhitstrNhitsPoss_cut");
   man.AddCutOnDetector(name.c_str(), {"trNhitsFit", "trNhitsPoss"}, [](float nhits, float nhitsposs){ return ((double)nhits / (double)nhitsposs > 0.51); },"nhitsRatio_cut");
   man.AddCutOnDetector(name.c_str(), {"trDca"}, [](float dca){ return (abs(dca) < 1.); },"dca_cut");
-  man.AddCutOnDetector(name.c_str(), {"trPidPr"}, [](float pid){ return (pid == 1); },"pid_cut");
+  man.AddCutOnDetector(name.c_str(), {"trPidPr"}, [](int pid){ return (pid == 1); },"pid_cut");
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
@@ -279,6 +296,11 @@ void setupQvectors()
   man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trM2", 170, -0.2, 1.5}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trP", 175, 0., 3.5}, {"trDedx", 325, 0., 6.5e-5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigPi", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigKa", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigPr", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
 
   name = "u_TPC_R_ch";
   man.AddDetector(name.c_str(), track, "trPhi", "trPt", corrAxesParticle, {1, 2, 3, 4}, sumW);
@@ -307,8 +329,8 @@ void setupQvectors()
   man.AddCutOnDetector(name.c_str(), {"trNhitsFit"}, [](float nhits){ return (nhits > 15); },"nhits_cut");
   man.AddCutOnDetector(name.c_str(), {"trNhitsPoss"}, [](float nhitsposs){ return (nhitsposs > 0); },"nhitstrNhitsPoss_cut");
   man.AddCutOnDetector(name.c_str(), {"trNhitsFit", "trNhitsPoss"}, [](float nhits, float nhitsposs){ return ((float)nhits / (float)nhitsposs > 0.51); },"nhitsRatio_cut");
-  man.AddCutOnDetector(name.c_str(), {"trDca"}, [](float dca){ return (abs(dca) < 3.); },"dca_cut");
-  man.AddCutOnDetector(name.c_str(), {"trPidPi"}, [](float pid){ return (pid == 1); },"pid_cut");
+  man.AddCutOnDetector(name.c_str(), {"trDca"}, [](float dca){ return (abs(dca) < 1.); },"dca_cut");
+  man.AddCutOnDetector(name.c_str(), {"trPidPi"}, [](int pid){ return (pid == 1); },"pid_cut");
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
@@ -316,6 +338,11 @@ void setupQvectors()
   man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trM2", 170, -0.2, 1.5}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trP", 175, 0., 3.5}, {"trDedx", 325, 0., 6.5e-5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigPi", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigKa", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigPr", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
 
   name = "u_TPC_R_kaon";
   man.AddDetector(name.c_str(), track, "trPhi", "trPt", corrAxesParticle, {1, 2, 3, 4}, sumW);
@@ -326,8 +353,8 @@ void setupQvectors()
   man.AddCutOnDetector(name.c_str(), {"trNhitsFit"}, [](float nhits){ return (nhits > 15); },"nhits_cut");
   man.AddCutOnDetector(name.c_str(), {"trNhitsPoss"}, [](float nhitsposs){ return (nhitsposs > 0); },"nhitstrNhitsPoss_cut");
   man.AddCutOnDetector(name.c_str(), {"trNhitsFit", "trNhitsPoss"}, [](float nhits, float nhitsposs){ return ((float)nhits / (float)nhitsposs > 0.51); },"nhitsRatio_cut");
-  man.AddCutOnDetector(name.c_str(), {"trDca"}, [](float dca){ return (abs(dca) < 3.); },"dca_cut");
-  man.AddCutOnDetector(name.c_str(), {"trPidKa"}, [](float pid){ return (pid == 1); },"pid_cut");
+  man.AddCutOnDetector(name.c_str(), {"trDca"}, [](float dca){ return (abs(dca) < 1.); },"dca_cut");
+  man.AddCutOnDetector(name.c_str(), {"trPidKa"}, [](int pid){ return (pid == 1); },"pid_cut");
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
@@ -335,6 +362,11 @@ void setupQvectors()
   man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trM2", 170, -0.2, 1.5}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trP", 175, 0., 3.5}, {"trDedx", 325, 0., 6.5e-5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigPi", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigKa", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigPr", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
 
   name = "u_TPC_R_proton";
   man.AddDetector(name.c_str(), track, "trPhi", "trPt", corrAxesParticle, {1, 2, 3, 4}, sumW);
@@ -345,8 +377,8 @@ void setupQvectors()
   man.AddCutOnDetector(name.c_str(), {"trNhitsFit"}, [](float nhits){ return (nhits > 15); },"nhits_cut");
   man.AddCutOnDetector(name.c_str(), {"trNhitsPoss"}, [](float nhitsposs){ return (nhitsposs > 0); },"nhitstrNhitsPoss_cut");
   man.AddCutOnDetector(name.c_str(), {"trNhitsFit", "trNhitsPoss"}, [](float nhits, float nhitsposs){ return ((float)nhits / (float)nhitsposs > 0.51); },"nhitsRatio_cut");
-  man.AddCutOnDetector(name.c_str(), {"trDca"}, [](float dca){ return (abs(dca) < 3.); },"dca_cut");
-  man.AddCutOnDetector(name.c_str(), {"trPidPr"}, [](float pid){ return (pid == 1); },"pid_cut");
+  man.AddCutOnDetector(name.c_str(), {"trDca"}, [](float dca){ return (abs(dca) < 1.); },"dca_cut");
+  man.AddCutOnDetector(name.c_str(), {"trPidPr"}, [](int pid){ return (pid == 1); },"pid_cut");
   man.AddCorrectionOnQnVector(name.c_str(), recentering);
   man.AddCorrectionOnQnVector(name.c_str(), twistRescale);
   man.SetOutputQVectors(name.c_str(), {plain, recentered, twisted, rescaled});
@@ -354,6 +386,11 @@ void setupQvectors()
   man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trM2", 170, -0.2, 1.5}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trP", 175, 0., 3.5}, {"trDedx", 325, 0., 6.5e-5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigPi", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigKa", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNsigPr", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
 
   name = "Q_TPC_L_ch";
   man.AddDetector(name.c_str(), track, "trPhi", "trPt", {}, {1, 2, 3, 4}, sumW);
