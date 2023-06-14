@@ -69,13 +69,13 @@ filteredDF defineVariables(definedDF &d)
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 
   auto dd=d
-		.Define("evCent","ev_cent")
-		.Define("evVtxX","ev_vtxX")
-		.Define("evVtxY","ev_vtxY")
-		.Define("evVtxZ","ev_vtxZ")
-		.Define("evVpdZ","ev_vpdZ")
+    .Define("evCent","ev_cent")
+    .Define("evVtxX","ev_vtxX")
+    .Define("evVtxY","ev_vtxY")
+    .Define("evVtxZ","ev_vtxZ")
+    .Define("evVpdZ","ev_vpdZ")
     .Define("trPt",  getPt,  {"tr_px", "tr_py"})
-    .Define("trP",   getP,  {"tr_px", "tr_py", "tr_pz"})
+    .Define("trP",   getP,   {"tr_px", "tr_py", "tr_pz"})
     .Define("trEta", getEta, {"tr_px", "tr_py", "tr_pz"})
     .Define("trPhi", getPhi, {"tr_px", "tr_py"})
     .Define("trCh",  "tr_ch")
@@ -83,7 +83,7 @@ filteredDF defineVariables(definedDF &d)
     .Define("trNhitsFit", "tr_NhitsFit")
     .Define("trNhitsPoss", "tr_NhitsPoss")
     .Define("trDca", "tr_dca")
-		.Define("trRnd4Sub", rndNum, {"tr_px"})
+    .Define("trRnd4Sub", rndNum, {"tr_px"})
     .Filter("abs(evVtxZ)<30.") // At least one filter should be present (even if it always returns true)!!!
     .Filter("sqrt(evVtxX*evVtxX+evVtxY*evVtxY)<2.") // At least one filter should be present (even if it always returns true)!!!
     .Filter("abs(evVtxZ-evVpdZ)<3.") // At least one filter should be present (even if it always returns true)!!!
@@ -93,7 +93,7 @@ filteredDF defineVariables(definedDF &d)
   {
     "ev(Cent|VtxX|VtxY|VtxZ|VpdZ)", // kEvent
     "",                         // kChannel 
-    "tr(Pt|Eta|Phi|Ch|Nhits|NhitsFit|NhitsPoss|Dca|Rnd4Sub)",  // kRecParticle  
+    "tr(P|Pt|Eta|Phi|Ch|Nhits|NhitsFit|NhitsPoss|Dca|Rnd4Sub)",  // kRecParticle  
     ""     // kSimParticle  
   };
 
