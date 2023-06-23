@@ -59,8 +59,6 @@ void correlate(string inputFiles="qn.root", string outputFile="corr.root")
   int nSamples = 50;
   Qn::AxisD centAxis({"evCent", {0., 5., 10., 15., 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80.}});
   Qn::AxisD vtxAxis({"evVtxZ", {-30.,-24.,-18.,-12.,-6.,0.,6.,12.,18.,24.,30.}});
-  Qn::AxisD ptAxis({"trPt", {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2., 2.2, 2.4, 2.6, 2.8, 3., 3.25, 3.5, 3.75, 4., 4.5, 5.}});
-  Qn::AxisD etaAxis({"trEta", 1, -1., 1.});
   auto axes_correlation = Qn::MakeAxes(centAxis);//, vtxAxis);
   TChain *c=makeChain(inputFiles, "tree");
   ROOT::RDataFrame d(*c);

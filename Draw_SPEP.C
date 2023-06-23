@@ -18,13 +18,15 @@ void Draw_SPEP(TString inFileName = "", TString outFileName = "./test_graphs.roo
   const std::vector<std::pair<float, float>> cent_ranges_v3 = {{0., 10.}, {10., 20.}, {20., 30.}, {30., 40.}, {40., 50.}, {50., 60.}, {10., 40.}, {0., 30.}, {30., 80.}};
 
   Qn::AxisD axis_pt_v2_ch("trPt",     {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.8, 3.25, 3.75, 4.5});
-  Qn::AxisD axis_pt_v2_pion("trPt",   {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.8, 3.25});
-  Qn::AxisD axis_pt_v2_kaon("trPt",   {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.8, 3.25});
-  Qn::AxisD axis_pt_v2_proton("trPt", {0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.8, 3.25});
-  Qn::AxisD axis_pt_v3_ch("trPt",     {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.8, 3.25});
-  Qn::AxisD axis_pt_v3_pion("trPt",   {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.8, 3.25});
-  Qn::AxisD axis_pt_v3_kaon("trPt",   {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.8, 3.25});
-  Qn::AxisD axis_pt_v3_proton("trPt", {0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.8, 3.25});
+  Qn::AxisD axis_pt_v2_pion("trPt",   {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.2, 2.4, 2.6, 2.8, 3., 3.25});
+  Qn::AxisD axis_pt_v2_kaon("trPt",   {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.2, 2.4, 2.6, 2.8, 3., 3.25});
+  Qn::AxisD axis_pt_v2_proton("trPt", {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.2, 2.4, 2.6, 2.8, 3., 3.25});
+  Qn::AxisD axis_pt_v3_ch("trPt",     {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.6, 2.8, 3., 3.25});
+  Qn::AxisD axis_pt_v3_pion("trPt",   {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.6, 2.8, 3., 3.25});
+  Qn::AxisD axis_pt_v3_kaon("trPt",   {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.6, 2.8, 3., 3.25});
+  Qn::AxisD axis_pt_v3_proton("trPt", {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.4, 2.6, 2.8, 3., 3.25});
+
+  std::vector<std::string> pid_names = {"ch", "pion", "kaon", "proton"};
 
   // Names for <uQ> and <QQ> correlations for vn: {{uQ, QQ}, ...}
   std::vector<std::pair<std::string, std::string>> corr_names_v2 = {
@@ -34,24 +36,24 @@ void Draw_SPEP(TString inFileName = "", TString outFileName = "./test_graphs.roo
     {"u_TPC_R_ch_RESCALED_Q_TPC_L_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
     {"u_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
     {"u_TPC_R_ch_RESCALED_Q_TPC_L_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
-    // {"u_TPC_L_pion_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
-    // {"u_TPC_R_pion_RESCALED_Q_TPC_L_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
-    // {"u_TPC_L_pion_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
-    // {"u_TPC_R_pion_RESCALED_Q_TPC_L_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
-    // {"u_TPC_L_pion_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
-    // {"u_TPC_R_pion_RESCALED_Q_TPC_L_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
-    // {"u_TPC_L_kaon_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
-    // {"u_TPC_R_kaon_RESCALED_Q_TPC_L_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
-    // {"u_TPC_L_kaon_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
-    // {"u_TPC_R_kaon_RESCALED_Q_TPC_L_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
-    // {"u_TPC_L_kaon_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
-    // {"u_TPC_R_kaon_RESCALED_Q_TPC_L_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
-    // {"u_TPC_L_proton_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
-    // {"u_TPC_R_proton_RESCALED_Q_TPC_L_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
-    // {"u_TPC_L_proton_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
-    // {"u_TPC_R_proton_RESCALED_Q_TPC_L_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
-    // {"u_TPC_L_proton_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
-    // {"u_TPC_R_proton_RESCALED_Q_TPC_L_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"}
+    {"u_TPC_L_pion_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
+    {"u_TPC_R_pion_RESCALED_Q_TPC_L_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
+    {"u_TPC_L_pion_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
+    {"u_TPC_R_pion_RESCALED_Q_TPC_L_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
+    {"u_TPC_L_pion_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
+    {"u_TPC_R_pion_RESCALED_Q_TPC_L_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
+    {"u_TPC_L_kaon_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
+    {"u_TPC_R_kaon_RESCALED_Q_TPC_L_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
+    {"u_TPC_L_kaon_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
+    {"u_TPC_R_kaon_RESCALED_Q_TPC_L_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
+    {"u_TPC_L_kaon_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
+    {"u_TPC_R_kaon_RESCALED_Q_TPC_L_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
+    {"u_TPC_L_proton_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
+    {"u_TPC_R_proton_RESCALED_Q_TPC_L_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
+    {"u_TPC_L_proton_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
+    {"u_TPC_R_proton_RESCALED_Q_TPC_L_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
+    {"u_TPC_L_proton_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
+    {"u_TPC_R_proton_RESCALED_Q_TPC_L_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"}
   };
   std::vector<std::pair<std::string, std::string>> corr_names_v3 = {
     {"u_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP3_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP3_evCent"},
@@ -82,9 +84,9 @@ void Draw_SPEP(TString inFileName = "", TString outFileName = "./test_graphs.roo
 
   // Indices for <uLQR> and <uRQL>: {{i_uLQR, i_iRQL}, ...}
   std::vector<std::pair<int, int>> LR_indices = {{0,1},{2,3},{4,5},
-                                                // {6,7},{8,9},{10,11},
-                                                // {12,13},{14,15},{16,17},
-                                                // {18,19},{20,21},{22,23}
+                                                {6,7},{8,9},{10,11},
+                                                {12,13},{14,15},{16,17},
+                                                {18,19},{20,21},{22,23}
                                                 };
 
   // Prepare names for vn
@@ -125,7 +127,6 @@ void Draw_SPEP(TString inFileName = "", TString outFileName = "./test_graphs.roo
   
   TFile *foGraphs = new TFile(outFileName.Data(), "recreate");
 
-  // <QQ> - {coscos, sinsin, EP, XX, YY, SP}
   std::vector<std::pair< std::pair<Qn::DataContainerStatCalculate, std::string>, std::pair<Qn::DataContainerStatCalculate, std::string> >> corr2_tpc, corr3_tpc; // TPC-based: {{{uQ, name}, {QQ, name}}, ...}
 
   std::pair<std::pair<Qn::DataContainerStatCalculate, std::string>, std::pair<Qn::DataContainerStatCalculate, std::string>> dcsc_tmp;
@@ -177,11 +178,11 @@ void Draw_SPEP(TString inFileName = "", TString outFileName = "./test_graphs.roo
       {
         auto v2_cent = v2_general.Rebin({"evCent", 1, cent.first, cent.second});
         auto v2_pT = v2_cent.Projection({"trPt"});
-        if (corr.first.second.find("pion") != std::string::npos)
+        if (corr.first.second.find(pid_names.at(1)) != std::string::npos)
           v2_pT = v2_pT.Rebin(axis_pt_v2_pion);
-        else if (corr.first.second.find("kaon") != std::string::npos)
+        else if (corr.first.second.find(pid_names.at(2)) != std::string::npos)
           v2_pT = v2_pT.Rebin(axis_pt_v2_kaon);
-        else if (corr.first.second.find("proton") != std::string::npos)
+        else if (corr.first.second.find(pid_names.at(3)) != std::string::npos)
           v2_pT = v2_pT.Rebin(axis_pt_v2_proton);
         else
           v2_pT = v2_pT.Rebin(axis_pt_v2_ch);
@@ -206,11 +207,11 @@ void Draw_SPEP(TString inFileName = "", TString outFileName = "./test_graphs.roo
         auto v3_cent = v3_general.Rebin({"evCent", 1, cent.first, cent.second});
         auto v3_pT = v3_cent.Projection({"trPt"});
         v3_pT = v3_pT.Rebin(axis_pt_v3_ch);
-        if (corr.first.second.find("pion") != std::string::npos)
+        if (corr.first.second.find(pid_names.at(1)) != std::string::npos)
           v3_pT = v3_pT.Rebin(axis_pt_v3_pion);
-        else if (corr.first.second.find("kaon") != std::string::npos)
+        else if (corr.first.second.find(pid_names.at(2)) != std::string::npos)
           v3_pT = v3_pT.Rebin(axis_pt_v3_kaon);
-        else if (corr.first.second.find("proton") != std::string::npos)
+        else if (corr.first.second.find(pid_names.at(3)) != std::string::npos)
           v3_pT = v3_pT.Rebin(axis_pt_v3_proton);
         else
           v3_pT = v3_pT.Rebin(axis_pt_v3_ch);
@@ -230,11 +231,11 @@ void Draw_SPEP(TString inFileName = "", TString outFileName = "./test_graphs.roo
         auto v2_general = Merge(corr2_tpc.at(sides.first).first.first, corr2_tpc.at(sides.second).first.first) / res2_tpc.at(sides.first);
         auto v2_cent = v2_general.Rebin({"evCent", 1, cent.first, cent.second});
         auto v2_pT = v2_cent.Projection({"trPt"});
-        if (corr2_tpc.at(sides.first).first.second.find("pion") != std::string::npos)
+        if (corr2_tpc.at(sides.first).first.second.find(pid_names.at(1)) != std::string::npos)
           v2_pT = v2_pT.Rebin(axis_pt_v2_pion);
-        else if (corr2_tpc.at(sides.first).first.second.find("kaon") != std::string::npos)
+        else if (corr2_tpc.at(sides.first).first.second.find(pid_names.at(2)) != std::string::npos)
           v2_pT = v2_pT.Rebin(axis_pt_v2_kaon);
-        else if (corr2_tpc.at(sides.first).first.second.find("proton") != std::string::npos)
+        else if (corr2_tpc.at(sides.first).first.second.find(pid_names.at(3)) != std::string::npos)
           v2_pT = v2_pT.Rebin(axis_pt_v2_proton);
         else
           v2_pT = v2_pT.Rebin(axis_pt_v2_ch);
@@ -249,11 +250,11 @@ void Draw_SPEP(TString inFileName = "", TString outFileName = "./test_graphs.roo
         auto v3_general = Merge(corr3_tpc.at(sides.first).first.first, corr3_tpc.at(sides.second).first.first) / res3_tpc.at(sides.first);
         auto v3_cent = v3_general.Rebin({"evCent", 1, cent.first, cent.second});
         auto v3_pT = v3_cent.Projection({"trPt"});
-        if (corr3_tpc.at(sides.first).first.second.find("pion") != std::string::npos)
+        if (corr3_tpc.at(sides.first).first.second.find(pid_names.at(1)) != std::string::npos)
           v3_pT = v3_pT.Rebin(axis_pt_v3_pion);
-        else if (corr3_tpc.at(sides.first).first.second.find("kaon") != std::string::npos)
+        else if (corr3_tpc.at(sides.first).first.second.find(pid_names.at(2)) != std::string::npos)
           v3_pT = v3_pT.Rebin(axis_pt_v3_kaon);
-        else if (corr3_tpc.at(sides.first).first.second.find("proton") != std::string::npos)
+        else if (corr3_tpc.at(sides.first).first.second.find(pid_names.at(3)) != std::string::npos)
           v3_pT = v3_pT.Rebin(axis_pt_v3_proton);
         else
           v3_pT = v3_pT.Rebin(axis_pt_v3_ch);
@@ -268,9 +269,9 @@ void Draw_SPEP(TString inFileName = "", TString outFileName = "./test_graphs.roo
 
   // Write resolution
   std::cout << "Written output resolutions:" << std::endl;
-  v_written_res.clear();
   if (isV2)
   {
+    v_written_res.clear();
     foGraphs->mkdir("res2_tpc");
     foGraphs->cd("res2_tpc");
     for (int i = 0; i < res2_tpc.size(); i++)
