@@ -1,0 +1,41 @@
+#!/bin/bash
+
+#
+#SBATCH -D /mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/TMP
+#SBATCH -J run_haddQA
+#SBATCH -p compute
+#SBATCH --time=01:30:00
+#SBATCH -a 1-@NJOBS@
+#
+#SBATCH -o /mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/TMP/slurm_%A_%a.out
+#SBATCH -e /mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/TMP/slurm_%A_%a.err
+#
+
+export JOB_ID=${SLURM_ARRAY_JOB_ID}
+export TASK_ID=${SLURM_ARRAY_TASK_ID}
+
+# Set up main software via modules
+source /mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/env.sh
+
+# Main directory and starting directory to return to after this script is done
+export START_DIR=${PWD}
+
+# File list (of filelists) for UrQMD mcpico data at 5 GeV
+export FILEDIR=@FILEDIR@
+export FILELIST=${FILEDIR}/run.list
+
+# Setting up main paths/filenames for output
+export IN_FILE=`sed "${TASK_ID}q;d" $FILELIST`
+export OUT_DIR=${FILEDIR}/${JOB_ID}/files
+export LOG_DIR=${FILEDIR}/${JOB_ID}/log
+
+mkdir -p ${OUT_DIR}
+mkdir -p ${LOG_DIR}
+
+export LOG=${LOG_DIR}/JOB_${JOB_ID}_${TASK_ID}.log
+export OUTFILE=${OUT_DIR}/aux_${JOB_ID}_${TASK_ID}.root
+
+touch $LOG
+
+hadd -f $OUTFILE @${IN_FILE} &>> $LOG
+echo "Job is done!" &>> $LOG

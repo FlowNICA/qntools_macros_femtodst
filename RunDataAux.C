@@ -5,9 +5,12 @@ bool isGoodTrack(StFemtoTrack *const& track, StFemtoEvent *const& event);
 
 void RunDataAux(std::string iFileName, std::string oFileName)
 {
+  TStopwatch timer;
+  timer.Start();
+
   const int Ncentralities = 16;
-  const int NptBins = 16;
-  const double ptBins[NptBins+1] = {0., 0.2, 0.4, 0.6, 0.8, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.2, 2.4, 2.6, 2.8, 3., 3.2};
+  const int NptBins = 15;
+  const double ptBins[NptBins+1] = {0.2, 0.4, 0.6, 0.8, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.2, 2.4, 2.6, 2.8, 3., 3.2};
 
   StFemtoDstReader* femtoReader = new StFemtoDstReader(iFileName.c_str());
   femtoReader->Init();
@@ -32,7 +35,7 @@ void RunDataAux(std::string iFileName, std::string oFileName)
   TFile *fo = new TFile(oFileName.c_str(), "recreate");
   TH1D *h_pt[Ncentralities];
   for (int icent = 0; icent < Ncentralities; icent++) {
-    h_pt[icent] = new TH1D(Form("h_pt_cent%i",icent), Form("h_pt for %3.0f-%3.0f%s",icent, icent*5., icent*5+5., "%"), 5000, 0., 5.);
+    h_pt[icent] = new TH1D(Form("h_pt_cent%i",icent), Form("h_pt for %3.0f-%3.0f%s", (double)icent*5., (double)icent*5+5., "%"), 5000, 0., 5.);
   }
 
   TH2D *h_NsigPiMsqr[NptBins];
@@ -40,9 +43,9 @@ void RunDataAux(std::string iFileName, std::string oFileName)
   TH2D *h_NsigPrMsqr[NptBins];
 
   for (int ipt = 0; ipt < NptBins; ipt++) {
-    h_NsigPiMsqr[ipt] = new TH2D(Form("h_NsigPiMsqr_pt%i", ipt), Form("h_NsigPiMsqr for %1.1f < p_{T} < %1.1f GeV/c;m^{2}, (Gev/c^{2})^{2}; n#sigma_{#pi}", ptBins[ipt], ptBins[ipt+1]), 1700, -0.2, 1.5, 800, -4., 4.);
-    h_NsigKaMsqr[ipt] = new TH2D(Form("h_NsigKaMsqr_pt%i", ipt), Form("h_NsigKaMsqr for %1.1f < p_{T} < %1.1f GeV/c;m^{2}, (Gev/c^{2})^{2}; n#sigma_{K}",   ptBins[ipt], ptBins[ipt+1]), 1700, -0.2, 1.5, 800, -4., 4.);
-    h_NsigPrMsqr[ipt] = new TH2D(Form("h_NsigPrMsqr_pt%i", ipt), Form("h_NsigPrMsqr for %1.1f < p_{T} < %1.1f GeV/c;m^{2}, (Gev/c^{2})^{2}; n#sigma_{p}",   ptBins[ipt], ptBins[ipt+1]), 1700, -0.2, 1.5, 800, -4., 4.);
+    h_NsigPiMsqr[ipt] = new TH2D(Form("h_NsigPiMsqr_pt%i", ipt), Form("h_NsigPiMsqr for %1.1f < p_{T} < %1.1f GeV/c;m^{2}, (Gev/c^{2})^{2}; n#sigma_{#pi}", ptBins[ipt], ptBins[ipt+1]), 1700, -0.2, 1.5, 6000, -30., 30.);
+    h_NsigKaMsqr[ipt] = new TH2D(Form("h_NsigKaMsqr_pt%i", ipt), Form("h_NsigKaMsqr for %1.1f < p_{T} < %1.1f GeV/c;m^{2}, (Gev/c^{2})^{2}; n#sigma_{K}",   ptBins[ipt], ptBins[ipt+1]), 1700, -0.2, 1.5, 6000, -30., 30.);
+    h_NsigPrMsqr[ipt] = new TH2D(Form("h_NsigPrMsqr_pt%i", ipt), Form("h_NsigPrMsqr for %1.1f < p_{T} < %1.1f GeV/c;m^{2}, (Gev/c^{2})^{2}; n#sigma_{p}",   ptBins[ipt], ptBins[ipt+1]), 1700, -0.2, 1.5, 6000, -30., 30.);
   }
 
   std::cout << "Number of events to read: " << events2read << std::endl;
@@ -52,7 +55,7 @@ void RunDataAux(std::string iFileName, std::string oFileName)
 		if (iEvent % 1000 == 0)
 		{
 			std::cout << "Preparing event #[" << (iEvent+1)
-					      << "/" << events2read << "] for RDataFrame" << std::endl;
+					      << "/" << events2read << "]" << std::endl;
 		}
 
     Bool_t readEvent = femtoReader->readFemtoEvent(iEvent);
@@ -109,14 +112,16 @@ void RunDataAux(std::string iFileName, std::string oFileName)
     h_pt[icent]->Write();
   }
   for (int ipt = 0; ipt < NptBins; ipt++) {
-    h_NsigPiMsqr[ipt_bin]->Write();
-    h_NsigKaMsqr[ipt_bin]->Write();
-    h_NsigPrMsqr[ipt_bin]->Write();
+    h_NsigPiMsqr[ipt]->Write();
+    h_NsigKaMsqr[ipt]->Write();
+    h_NsigPrMsqr[ipt]->Write();
   }
   fo->Close();
 
 	std::cout << "Neccessary data collected!" << std::endl;
   femtoReader->Finish();
+  timer.Stop();
+  timer.Print();
 }
 
 
@@ -142,7 +147,7 @@ bool isGoodTrack(StFemtoTrack *const& track, StFemtoEvent *const& event)
   if (mom.Mag() >= 10.) return false;
   if (track->nHitsFit() <= 15.) return false;
   if (track->nHitsPoss() <= 0.) return false;
-  if (t(double)rack->nHitsFit()/(double)track->nHitsPoss() <= 0.51) return false;
+  if ((double)track->nHitsFit()/(double)track->nHitsPoss() <= 0.51) return false;
   if (dca.Mag() >= 1.) return false;
 
   return true;
