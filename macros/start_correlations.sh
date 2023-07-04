@@ -13,7 +13,7 @@
 
 export SKIPED_TASKS=$1
 
-export programm_name=run10
+export programm_name=run0
 
 export JOB_ID=${SLURM_ARRAY_JOB_ID}
 export TASK_ID=${SLURM_ARRAY_TASK_ID}

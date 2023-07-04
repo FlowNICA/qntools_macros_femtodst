@@ -13,7 +13,7 @@
 
 export SKIPED_TASKS=$1
 
-export programm_name=run0
+export programm_name=run1
 
 export JOB_ID=${SLURM_ARRAY_JOB_ID}
 export TASK_ID=${SLURM_ARRAY_TASK_ID}
@@ -35,7 +35,7 @@ export MAIN_DIR=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst
 # File with correction calibration info (qa.root)
 #export QA_FILELIST=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/macros/lists/runlists_qa_auau_200gev.list
 #export ORIG_QA_FILE=`sed "${TASK_ID}q;d" $QA_FILELIST`
-#export ORIG_QA_FILE=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/OUT/auau_200gev_run3/qa_2.root
+export ORIG_QA_FILE=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/OUT/auau_200gev_qvec_run1/qa_1.root
 
 # File list (of filelists) for UrQMD mcpico data at 5 GeV
 export FILELIST=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/macros/runlists/runlists_femtodst_auau_200gev.list
