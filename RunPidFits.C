@@ -1174,8 +1174,8 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
       vx_tmp.push_back((ptBins[ipt+1]+ptBins[ipt])/2.);
       vex_tmp.push_back(0.);
       if (ipid < 2) {
-        vy_tmp.push_back(f1_gaus_pika2_x[ipt]->GetParameter(1+3*ipid));
-        vey_tmp.push_back(f1_gaus_pika2_x[ipt]->GetParError(1+3*ipid));
+        vy_tmp.push_back(f1_gaus2_pika_x[ipt]->GetParameter(1+3*ipid));
+        vey_tmp.push_back(f1_gaus2_pika_x[ipt]->GetParError(1+3*ipid));
       } else {
         vy_tmp.push_back(gr_signal1_mean_x[2]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.));
         vey_tmp.push_back(gr_signal1_mean_x[2]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.));
@@ -1191,8 +1191,8 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
       vx_tmp.push_back((ptBins[ipt+1]+ptBins[ipt])/2.);
       vex_tmp.push_back(0.);
       if (ipid < 2) {
-        vy_tmp.push_back(f1_gaus_pika_x[ipt]->GetParameter(2+3*ipid));
-        vey_tmp.push_back(f1_gaus_pika_x[ipt]->GetParError(2+3*ipid));
+        vy_tmp.push_back(f1_gaus2_pika_x[ipt]->GetParameter(2+3*ipid));
+        vey_tmp.push_back(f1_gaus2_pika_x[ipt]->GetParError(2+3*ipid));
       } else {
         vy_tmp.push_back(gr_signal1_sigm_x[2]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.));
         vey_tmp.push_back(gr_signal1_sigm_x[2]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.));
