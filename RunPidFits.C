@@ -33,6 +33,8 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
   TStopwatch timer;
   timer.Start();
 
+  bool fast_check = false; //true or false;
+
   const int Ncentralities = 16;
   const int NptBins = 15;
   const double ptBins[NptBins+1] = {0.2, 0.4, 0.6, 0.8, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.2, 2.4, 2.6, 2.8, 3., 3.2};
@@ -474,7 +476,7 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
   for (int ipt = 0; ipt < NptBins; ipt++) {
     cout << "\tPt bin " << ipt <<endl;
     for (int iter=0; iter<Niter2D; iter++) {
-        h_NsigPiMsqr[ipt]->Fit(f2_gaus3_Msqr[ipt],Form("%s B",fitOptions.c_str()));
+        if (!fast_check) h_NsigPiMsqr[ipt]->Fit(f2_gaus3_Msqr[ipt],Form("%s B",fitOptions.c_str()));
     }
     timer.Print();
     timer.Continue();
@@ -1008,7 +1010,7 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
   for (int ipt = 0; ipt < NptBins; ipt++) {
     cout << "\tPt bin " << ipt <<endl;
     for (int iter=0; iter<Niter2D; iter++) {
-        h_pidXY[ipt]->Fit(f2_gaus3_xy[ipt],Form("%s B",fitOptions.c_str()));
+        if (!fast_check) h_pidXY[ipt]->Fit(f2_gaus3_xy[ipt],Form("%s B",fitOptions.c_str()));
     }
     timer.Print();
     timer.Continue();
@@ -1084,6 +1086,45 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
     gr_signal2_sigm_y[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_sigm_y[ipid], -1);
   }
 
+  // Cleanup (x,y) of pions and kaons via resampling
+  cout << "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << endl;
+  cout << "Cleanup (x,y) of pions and kaons via resampling..." << endl;
+  TH2D *h_pika1XY[NptBins];
+  double x_coord, y_coord;
+  for (int ipt = 0; ipt < NptBins; ipt++) {
+    cout << "\tPt bin " << ipt <<endl;
+
+    h_pika1XY[ipt] = new TH2D(Form("h_pika1XY_pt%i", ipt), Form("h_pika1XY for %1.1f < p_{T} < %1.1f GeV/c (#pi, K only);X;Y", ptBins[ipt], ptBins[ipt+1]), 6000, -1.5, 1.5, 6000, -1.5, 1.5);
+
+    long nentries = (long)h_pikaXY[ipt]->GetEntries();
+    for (long ientry=0; ientry<nentries; ientry++) {
+      h_pikaXY[ipt]->GetRandom2(x_coord,y_coord);
+      
+      double sigmx_pi = gr_signal2_sigm_x[0]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.);
+      double sigmx_ka = gr_signal2_sigm_x[1]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.);
+      double sigmx_pr = gr_signal2_sigm_x[2]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.);
+      double meanx_pi = gr_signal2_mean_x[0]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.);
+      double meanx_ka = gr_signal2_mean_x[1]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.);
+      double meanx_pr = gr_signal2_mean_x[2]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.);
+      double sigmy_pi = gr_signal2_sigm_y[0]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.);
+      double sigmy_ka = gr_signal2_sigm_y[1]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.);
+      double sigmy_pr = gr_signal2_sigm_y[2]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.);
+      double meany_pi = gr_signal2_mean_y[0]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.);
+      double meany_ka = gr_signal2_mean_y[1]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.);
+      double meany_pr = gr_signal2_mean_y[2]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.);
+
+      // Cut everything outside 5*sigma for pions and kaons + cut 3*sigma protons
+      if ( (pow(x_coord - meanx_pi, 2)/pow(5.*sigmx_pi, 2) + pow(y_coord - meany_pi, 2)/pow(5.*sigmy_pi, 2) < 1. ||
+            pow(x_coord - meanx_ka, 2)/pow(5.*sigmx_ka, 2) + pow(y_coord - meany_ka, 2)/pow(5.*sigmy_ka, 2) < 1. ) &&
+            pow(x_coord - meanx_pr, 2)/pow(3.*sigmx_pr, 2) + pow(y_coord - meany_pr, 2)/pow(3.*sigmy_pr, 2) > 1.) {
+        h_pika1XY[ipt]->Fill(x_coord, y_coord);
+      }
+    }
+
+    timer.Print();
+    timer.Continue();
+  }
+
   // Fit x: 2x1D gaus for pions and kaons
   // --- ToDo
   cout << "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << endl;
@@ -1092,9 +1133,9 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
   TF1 *f1_gaus_pika_x[NptBins];
   TF1 *f1_gaus2_pika_x[NptBins];
   for (int ipt = 0; ipt < NptBins; ipt++) {
-    h_pika_x[ipt] = (TH1D*) h_pikaXY[ipt]->ProjectionX(Form("h_pika_x_pt%i", ipt), 
-    h_pikaXY[ipt]->GetYaxis()->FindBin(gr_signal2_mean_y[0]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.) - 2.5*gr_signal2_sigm_y[0]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.)), 
-    h_pikaXY[ipt]->GetYaxis()->FindBin(gr_signal2_mean_y[2]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.) + 2.5*gr_signal2_sigm_y[2]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.)));
+    h_pika_x[ipt] = (TH1D*) h_pika1XY[ipt]->ProjectionX(Form("h_pika_x_pt%i", ipt), 
+    h_pika1XY[ipt]->GetYaxis()->FindBin(gr_signal2_mean_y[0]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.) - 2.5*gr_signal2_sigm_y[0]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.)), 
+    h_pika1XY[ipt]->GetYaxis()->FindBin(gr_signal2_mean_y[2]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.) + 2.5*gr_signal2_sigm_y[2]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.)));
 
     f1_gaus_pika_x[ipt] = new TF1(Form("f1_gaus_pika_x_pt%i", ipt), "gaus(0)+gaus(3)", 
     gr_signal2_mean_x[0]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.) - 2.5*gr_signal2_sigm_x[0]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.),
@@ -1124,7 +1165,8 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
     f1_gaus2_pika_x[ipt]->SetParName(11, "Bgd2Sigma");
 
     f1_gaus_pika_x[ipt]->SetParameter(0, f1_gaus2_x[ipt][0]->GetParameter(0));
-    f1_gaus_pika_x[ipt]->SetParameter(1, 0.);
+    f1_gaus_pika_x[ipt]->FixParameter(1, 0.);
+    // f1_gaus_pika_x[ipt]->SetParameter(1, 0.);
     f1_gaus_pika_x[ipt]->SetParameter(2, gr_signal1_sigm_x[0]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.));
     f1_gaus_pika_x[ipt]->SetParameter(3, f1_gaus2_x[ipt][1]->GetParameter(0));
     f1_gaus_pika_x[ipt]->SetParameter(4, 0.25);
@@ -1132,7 +1174,8 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
     f1_gaus_pika_x[ipt]->SetParameter(5, gr_signal1_sigm_x[1]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.));
 
     f1_gaus2_pika_x[ipt]->SetParameter(0, f1_gaus2_x[ipt][0]->GetParameter(0));
-    f1_gaus2_pika_x[ipt]->SetParameter(1, 0.);
+    f1_gaus2_pika_x[ipt]->FixParameter(1, 0.);
+    // f1_gaus2_pika_x[ipt]->SetParameter(1, 0.);
     f1_gaus2_pika_x[ipt]->SetParameter(2, gr_signal1_sigm_x[0]->Eval((ptBins[ipt+1]+ptBins[ipt])/2.));
     f1_gaus2_pika_x[ipt]->SetParameter(3, f1_gaus2_x[ipt][1]->GetParameter(0));
     f1_gaus2_pika_x[ipt]->SetParameter(4, 0.25);
@@ -1319,6 +1362,7 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
   for (int ipt = 0; ipt < NptBins; ipt++) {
     h_pidXY[ipt]->Write();
     h_pikaXY[ipt]->Write();
+    h_pika1XY[ipt]->Write();
     f2_gaus3_xy[ipt]->Write();
     for (int ipid=0; ipid<Npid; ipid++) {
       f2_gaus2_xy[ipt][ipid]->Write();
