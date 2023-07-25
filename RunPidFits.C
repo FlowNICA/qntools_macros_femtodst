@@ -592,7 +592,7 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
     h_pidXY[ipt] = new TH2D(Form("h_pidXY_pt%i", ipt), Form("h_pidXY for %1.1f < p_{T} < %1.1f GeV/c;X;Y", ptBins[ipt], ptBins[ipt+1]), 6000, -1.5, 1.5, 6000, -1.5, 1.5);
     h_pikaXY[ipt] = new TH2D(Form("h_pikaXY_pt%i", ipt), Form("h_pikaXY for %1.1f < p_{T} < %1.1f GeV/c (#pi, K only);X;Y", ptBins[ipt], ptBins[ipt+1]), 6000, -1.5, 1.5, 6000, -1.5, 1.5);
 
-    long nentries = (long)h_NsigPiMsqr[ipt]->GetEntries()/(long)(exp((double)(NptBins-ipt+1)/6.));
+    long nentries = (long)h_NsigPiMsqr[ipt]->GetEntries(); ///(long)(exp((double)(NptBins-ipt+1)/6.));
     for (long ientry=0; ientry<nentries; ientry++) {
       h_NsigPiMsqr[ipt]->GetRandom2(x_old,y_old);
       new_coord = GetXY(x_old, y_old, 
