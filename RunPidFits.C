@@ -33,7 +33,7 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
   TStopwatch timer;
   timer.Start();
 
-  bool fast_check = false; //true or false;
+  bool fast_check = true; //true or false;
 
   const int Ncentralities = 16;
   const int NptBins = 15;
@@ -45,6 +45,7 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
 
   const int Niter1D = 5; // for more precise fits
   const int Niter2D = 1; // for more precise fits
+  const int NiterSmooth = -1; // -1 - do all available iterations, 0 - no iteration at all or N=1,2,...
 
   const vector<vector<double>> NsigMeanInitial = {{0., 10., 20.}, {0., 4., 12.}, {0., 2., 8.}, {0., 1., 5.},                     // 0.2-0.4, 0.4-0.6, 0.6-0.8, 0.8-1.0
                                                   {0., 0., 3.}, {0., -1., 1.}, {0., -1., 0.}, {0., -1.2, -0.5}, {0., -1.5, -1.}, // 1.0-1.2, 1.2-1.4, 1.4-1.6, 1.6-1.8, 1.8-2.0
@@ -113,7 +114,7 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
   for (int ipt = 0; ipt < NptBins; ipt++) {
     f1_gaus3_Msqr[ipt] = new TF1(Form("f1_gaus1_Msqr_pt%i", ipt), "gaus(0)+gaus(3) + gaus(6)+gaus(9) + gaus(12)+gaus(15)", -0.2, 1.5);
     for (int ipid=0; ipid<Npid; ipid++) {
-      if (ipid == 0) f1_gaus2_Msqr[ipt][ipid] = new TF1(Form("f1_gaus2_Msqr_pt%i_pid%i", ipt, ipid), "gaus(0)+gaus(3)", pid_Msqr.at(ipid)*0.1, pid_Msqr.at(ipid)*2.);
+      if (ipid == 0) f1_gaus2_Msqr[ipt][ipid] = new TF1(Form("f1_gaus2_Msqr_pt%i_pid%i", ipt, ipid), "gaus(0)+gaus(3)", pid_Msqr.at(ipid)*(-3.), pid_Msqr.at(ipid)*3.);
       else f1_gaus2_Msqr[ipt][ipid] = new TF1(Form("f1_gaus2_Msqr_pt%i_pid%i", ipt, ipid), "gaus(0)+gaus(3)", pid_Msqr.at(ipid)*0.7, pid_Msqr.at(ipid)*1.3);
 
       f1_gaus2_Msqr[ipt][ipid]->SetParName(0, "SglConstant");
@@ -359,10 +360,11 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
 
   // Smoothen the pT-dependencies
   for (int ipid=0; ipid<Npid; ipid++) {
-    gr_signal1_mean_m2[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_mean_m2[ipid], -1);
-    gr_signal1_mean_ns[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_mean_ns[ipid], -1);
-    gr_signal1_sigm_m2[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_sigm_m2[ipid], -1);
-    gr_signal1_sigm_ns[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_sigm_ns[ipid], -1);
+    gr_signal1_mean_m2[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_mean_m2[ipid], NiterSmooth);
+    if (ipid == 1) gr_signal1_mean_ns[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_mean_ns[ipid], 0);
+    else gr_signal1_mean_ns[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_mean_ns[ipid], NiterSmooth);
+    gr_signal1_sigm_m2[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_sigm_m2[ipid], NiterSmooth);
+    gr_signal1_sigm_ns[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_sigm_ns[ipid], NiterSmooth);
   }
 
   // Do 1 2x2D 3gaus fits
@@ -571,10 +573,11 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
 
   // Smoothen the pT-dependencies
   for (int ipid=0; ipid<Npid; ipid++) {
-    gr_signal2_mean_m2[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_mean_m2[ipid], -1);
-    gr_signal2_mean_ns[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_mean_ns[ipid], -1);
-    gr_signal2_sigm_m2[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_sigm_m2[ipid], -1);
-    gr_signal2_sigm_ns[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_sigm_ns[ipid], -1);
+    gr_signal2_mean_m2[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_mean_m2[ipid], NiterSmooth);
+    if (ipid == 1) gr_signal2_mean_ns[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_mean_ns[ipid], 0);
+    else gr_signal2_mean_ns[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_mean_ns[ipid], NiterSmooth);
+    gr_signal2_sigm_m2[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_sigm_m2[ipid], NiterSmooth);
+    gr_signal2_sigm_ns[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_sigm_ns[ipid], NiterSmooth);
   }
   // Resampling and transforming m2,nsigma -> x,y
   cout << "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << endl;
@@ -589,7 +592,7 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
     h_pidXY[ipt] = new TH2D(Form("h_pidXY_pt%i", ipt), Form("h_pidXY for %1.1f < p_{T} < %1.1f GeV/c;X;Y", ptBins[ipt], ptBins[ipt+1]), 6000, -1.5, 1.5, 6000, -1.5, 1.5);
     h_pikaXY[ipt] = new TH2D(Form("h_pikaXY_pt%i", ipt), Form("h_pikaXY for %1.1f < p_{T} < %1.1f GeV/c (#pi, K only);X;Y", ptBins[ipt], ptBins[ipt+1]), 6000, -1.5, 1.5, 6000, -1.5, 1.5);
 
-    long nentries = (long)h_NsigPiMsqr[ipt]->GetEntries()/(long)(exp((double)(NptBins-ipt+1)/3.));
+    long nentries = (long)h_NsigPiMsqr[ipt]->GetEntries()/(long)(exp((double)(NptBins-ipt+1)/6.));
     for (long ientry=0; ientry<nentries; ientry++) {
       h_NsigPiMsqr[ipt]->GetRandom2(x_old,y_old);
       new_coord = GetXY(x_old, y_old, 
@@ -891,10 +894,10 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
 
   // Smoothen the pT-dependencies
   for (int ipid=0; ipid<Npid; ipid++) {
-    gr_signal1_mean_x[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_mean_x[ipid], -1);
-    gr_signal1_mean_y[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_mean_y[ipid], -1);
-    gr_signal1_sigm_x[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_sigm_x[ipid], -1);
-    gr_signal1_sigm_y[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_sigm_y[ipid], -1);
+    gr_signal1_mean_x[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_mean_x[ipid], NiterSmooth);
+    gr_signal1_mean_y[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_mean_y[ipid], NiterSmooth);
+    gr_signal1_sigm_x[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_sigm_x[ipid], NiterSmooth);
+    gr_signal1_sigm_y[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal1_sigm_y[ipid], NiterSmooth);
   }
 
   // Fit (x,y): 2x2D 3gaus
@@ -1080,10 +1083,10 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
 
   // Smoothen the pT-dependencies
   for (int ipid=0; ipid<Npid; ipid++) {
-    gr_signal2_mean_x[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_mean_x[ipid], -1);
-    gr_signal2_mean_y[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_mean_y[ipid], -1);
-    gr_signal2_sigm_x[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_sigm_x[ipid], -1);
-    gr_signal2_sigm_y[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_sigm_y[ipid], -1);
+    gr_signal2_mean_x[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_mean_x[ipid], NiterSmooth);
+    gr_signal2_mean_y[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_mean_y[ipid], NiterSmooth);
+    gr_signal2_sigm_x[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_sigm_x[ipid], NiterSmooth);
+    gr_signal2_sigm_y[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal2_sigm_y[ipid], NiterSmooth);
   }
 
   // Cleanup (x,y) of pions and kaons via resampling
@@ -1249,8 +1252,8 @@ void RunPidFits(string iFileName, string oFileName, bool is_multithread = false)
 
   // Smoothen the pT-dependencies
   for (int ipid=0; ipid<Npid; ipid++) {
-    gr_signal3_mean_x[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal3_mean_x[ipid], -1);
-    gr_signal3_sigm_x[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal3_sigm_x[ipid], -1);
+    gr_signal3_mean_x[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal3_mean_x[ipid], NiterSmooth);
+    gr_signal3_sigm_x[ipid] = (TGraphErrors*) DoLaplaceSmooth(gr_orig_signal3_sigm_x[ipid], NiterSmooth);
   }
 
   // Writing output
@@ -1404,6 +1407,19 @@ TGraphErrors *DoLaplaceSmooth(TGraphErrors *const& gr, int niter=-1)
 {
   TGraphErrors *result;
 
+  if (niter == 0) {
+    result = (TGraphErrors*) gr->Clone();
+    result->SetMarkerStyle(gr->GetMarkerStyle());
+    result->SetMarkerSize(gr->GetMarkerSize());
+    result->SetMarkerColor(gr->GetMarkerColor());
+    result->SetLineColor(gr->GetLineColor());
+    result->SetLineStyle(gr->GetLineStyle());
+    result->SetLineWidth(gr->GetLineWidth());
+    result->SetName(Form("%s_smoothed",gr->GetName()));
+    result->SetTitle(Form("smoothed %s",gr->GetTitle()));
+    return (TGraphErrors*)result->Clone();
+  }
+
   vector<double> vx, vy, vex, vey, weight;
 
   for (int i=0; i<gr->GetN(); i++) {
@@ -1414,7 +1430,7 @@ TGraphErrors *DoLaplaceSmooth(TGraphErrors *const& gr, int niter=-1)
     weight.push_back(1./vey.at(i));
   }
 
-  int nsteps = (niter <= 0) ? gr->GetN()/2 : niter;
+  int nsteps = (niter < 0) ? gr->GetN()/2 : niter;
   for (int istep=0; istep<nsteps; istep++) {
     DoLaplaceSmooth(vy, istep);
     // DoLaplaceSmooth(vy, istep, weight);
