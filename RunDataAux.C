@@ -43,9 +43,9 @@ void RunDataAux(std::string iFileName, std::string oFileName)
   TH2D *h_NsigPrMsqr[NptBins];
 
   for (int ipt = 0; ipt < NptBins; ipt++) {
-    h_NsigPiMsqr[ipt] = new TH2D(Form("h_NsigPiMsqr_pt%i", ipt), Form("h_NsigPiMsqr for %1.1f < p_{T} < %1.1f GeV/c;m^{2}, (Gev/c^{2})^{2}; n#sigma_{#pi}", ptBins[ipt], ptBins[ipt+1]), 2000, -0.5, 1.5, 6000, -30., 30.);
-    h_NsigKaMsqr[ipt] = new TH2D(Form("h_NsigKaMsqr_pt%i", ipt), Form("h_NsigKaMsqr for %1.1f < p_{T} < %1.1f GeV/c;m^{2}, (Gev/c^{2})^{2}; n#sigma_{K}",   ptBins[ipt], ptBins[ipt+1]), 2000, -0.5, 1.5, 6000, -30., 30.);
-    h_NsigPrMsqr[ipt] = new TH2D(Form("h_NsigPrMsqr_pt%i", ipt), Form("h_NsigPrMsqr for %1.1f < p_{T} < %1.1f GeV/c;m^{2}, (Gev/c^{2})^{2}; n#sigma_{p}",   ptBins[ipt], ptBins[ipt+1]), 2000, -0.5, 1.5, 6000, -30., 30.);
+    h_NsigPiMsqr[ipt] = new TH2D(Form("h_NsigPiMsqr_pt%i", ipt), Form("h_NsigPiMsqr for %1.1f < p_{T} < %1.1f GeV/c;m^{2}, (Gev/c^{2})^{2}; n#sigma_{#pi}", ptBins[ipt], ptBins[ipt+1]), 6000, -1.5, 1.5, 6000, -30., 30.);
+    h_NsigKaMsqr[ipt] = new TH2D(Form("h_NsigKaMsqr_pt%i", ipt), Form("h_NsigKaMsqr for %1.1f < p_{T} < %1.1f GeV/c;m^{2}, (Gev/c^{2})^{2}; n#sigma_{K}",   ptBins[ipt], ptBins[ipt+1]), 6000, -1.5, 1.5, 6000, -30., 30.);
+    h_NsigPrMsqr[ipt] = new TH2D(Form("h_NsigPrMsqr_pt%i", ipt), Form("h_NsigPrMsqr for %1.1f < p_{T} < %1.1f GeV/c;m^{2}, (Gev/c^{2})^{2}; n#sigma_{p}",   ptBins[ipt], ptBins[ipt+1]), 6000, -1.5, 1.5, 6000, -30., 30.);
   }
 
   std::cout << "Number of events to read: " << events2read << std::endl;

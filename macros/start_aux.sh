@@ -2,40 +2,6 @@
 
 #
 #SBATCH -D /mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/TMP
-#SBATCH -J run_makeQvectors_femtodst
-#SBATCH -p compute
-#SBATCH --time=18:30:00
-#SBATCH -a 1-100
-#
-#SBATCH -o /mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/TMP/slurm_%A_%a.out
-#SBATCH -e /mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/TMP/slurm_%A_%a.err
-#
-
-export SKIPED_TASKS=$1
-
-export programm_name=run1
-
-export JOB_ID=${SLURM_ARRAY_JOB_ID}
-export TASK_ID=${SLURM_ARRAY_TASK_ID}
-
-if (( $SKIPED_TASKS > 0 ))
-then
-  READ_ID=$(expr $TASK_ID + $SKIPED_TASKS)
-else
-  READ_ID=$TASK_ID
-fi
-
-# Set up main software via modules
-source /mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/env.sh
-
-# Main directory and starting directory to return to after this script is done
-export START_DIR=${PWD}
-export MAIN_DIR=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst
-
-#!/bin/bash
-
-#
-#SBATCH -D /mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/TMP
 #SBATCH -J run_aux_femtodst
 #SBATCH -p compute
 #SBATCH --time=18:30:00
@@ -47,7 +13,7 @@ export MAIN_DIR=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst
 
 export SKIPED_TASKS=$1
 
-export programm_name=run0
+export programm_name=run1
 
 export JOB_ID=${SLURM_ARRAY_JOB_ID}
 export TASK_ID=${SLURM_ARRAY_TASK_ID}
