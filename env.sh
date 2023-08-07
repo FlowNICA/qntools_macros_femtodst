@@ -5,3 +5,5 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/mnt/pool/nica/7/parfenovpeter/Soft/QnTo
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/mnt/pool/nica/7/parfenovpeter/Soft/StFemtoEvent/build/
 export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:/mnt/pool/nica/7/parfenovpeter/Soft/QnTools/include/QnTools
 export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:/mnt/pool/nica/7/parfenovpeter/Soft/StFemtoEvent/
+
+alias emacs='/mnt/pool/nica/7/parfenovpeter/Soft/emacs-29.1/install/bin/emacs'

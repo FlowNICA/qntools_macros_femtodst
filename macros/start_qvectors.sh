@@ -13,7 +13,7 @@
 
 export SKIPED_TASKS=$1
 
-export programm_name=run1
+export programm_name=newpid0
 
 export JOB_ID=${SLURM_ARRAY_JOB_ID}
 export TASK_ID=${SLURM_ARRAY_TASK_ID}
@@ -35,7 +35,10 @@ export MAIN_DIR=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst
 # File with correction calibration info (qa.root)
 #export QA_FILELIST=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/macros/lists/runlists_qa_auau_200gev.list
 #export ORIG_QA_FILE=`sed "${TASK_ID}q;d" $QA_FILELIST`
-export ORIG_QA_FILE=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/OUT/auau_200gev_qvec_run1/qa_1.root
+#export ORIG_QA_FILE=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/OUT/auau_200gev_qvec_run1/qa_1.root
+
+# File with PID info (pidfit.root)
+export PID_FILE=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/OUT/auau_200gev_aux_run1/pidfit_auau_200gev.root
 
 # File list (of filelists) for UrQMD mcpico data at 5 GeV
 export FILELIST=/mnt/pool/nica/7/parfenovpeter/Soft/qntools_macros_femtodst/macros/runlists/runlists_femtodst_auau_200gev.list
@@ -99,7 +102,7 @@ source ${MAIN_DIR}/env.sh &>> $LOG
 #rsync -vuzh $MACRO_EXE                 ${TMP_DIR}/makeQvectors.C &>> $LOG
 #rsync -vuzh ${MAIN_DIR}/makeQvectors.h ${TMP_DIR}/makeQvectors.h &>> $LOG
 #rsync -vuzh ${MAIN_DIR}/utils.h        ${TMP_DIR}/utils.h &>> $LOG
-root -l -b -q $CONVERT_EXE'("'${IN_FILE}'","'${TMP_DIR}/stardata'")' &>> $LOG
+root -l -b -q $CONVERT_EXE'("'${IN_FILE}'","'${TMP_DIR}/stardata'","'${PID_FILE}'")' &>> $LOG
 cd $TMP_DIR
 
 if [ ! -f "$ORIG_QA_FILE" ]

@@ -133,7 +133,59 @@ Double_t GetZDCPhi(Int_t eastwest, Int_t verthori, Int_t strip)
   return phi;
 }
 
-TTree* makeTree4RDF(std::string fileName) {
+pair<double, double> GetXY(double _val_m2, double _val_sig, 
+  double _fit_mean_m2_pi, double _fit_mean_m2_ka,
+  double _fit_mean_sig_pi, double _fit_mean_sig_ka,
+  double _fit_sig_m2_pi,
+  double _fit_sig_sig_pi)
+{
+  double f = _fit_sig_sig_pi / _fit_sig_m2_pi;
+  double alpha = -1.*atan2( (_fit_mean_m2_ka - _fit_mean_m2_pi), ((_fit_mean_sig_ka - _fit_mean_sig_pi)/f) );
+
+  double x0 = (_val_sig - _fit_mean_sig_pi)/f;
+  double y0 = _val_m2 - _fit_mean_m2_pi;
+
+  double x = cos(alpha)*x0 - sin(alpha)*y0;
+  double y = sin(alpha)*x0 + cos(alpha)*y0;
+  return {x,y};
+}
+
+TTree* makeTree4RDF(std::string fileName="",
+                    TGraphErrors *const& gr_mean_m2_pi=nullptr, TGraphErrors *const& gr_mean_ns_pi=nullptr, TGraphErrors *const& gr_sigm_m2_pi=nullptr, TGraphErrors *const& gr_sigm_ns_pi=nullptr,
+                    TGraphErrors *const& gr_mean_m2_ka=nullptr, TGraphErrors *const& gr_mean_ns_ka=nullptr, TGraphErrors *const& gr_sigm_m2_ka=nullptr, TGraphErrors *const& gr_sigm_ns_ka=nullptr,
+                    TGraphErrors *const& gr_mean_m2_pr=nullptr, TGraphErrors *const& gr_mean_ns_pr=nullptr, TGraphErrors *const& gr_sigm_m2_pr=nullptr, TGraphErrors *const& gr_sigm_ns_pr=nullptr,
+                    TGraphErrors *const& gr_mean_x_pi=nullptr,  TGraphErrors *const& gr_mean_y_pi=nullptr,  TGraphErrors *const& gr_sigm_x_pi=nullptr,  TGraphErrors *const& gr_sigm_y_pi=nullptr,
+                    TGraphErrors *const& gr_mean_x_ka=nullptr,  TGraphErrors *const& gr_mean_y_ka=nullptr,  TGraphErrors *const& gr_sigm_x_ka=nullptr,  TGraphErrors *const& gr_sigm_y_ka=nullptr,
+                    TGraphErrors *const& gr_mean_x_pr=nullptr,  TGraphErrors *const& gr_mean_y_pr=nullptr,  TGraphErrors *const& gr_sigm_x_pr=nullptr,  TGraphErrors *const& gr_sigm_y_pr=nullptr)
+{
+  bool isPidXY = true;
+  if (!gr_mean_m2_pi) isPidXY = false;
+  if (!gr_mean_ns_pi) isPidXY = false;
+  if (!gr_sigm_m2_pi) isPidXY = false;
+  if (!gr_sigm_ns_pi) isPidXY = false;
+  if (!gr_mean_m2_ka) isPidXY = false;
+  if (!gr_mean_ns_ka) isPidXY = false;
+  if (!gr_sigm_m2_ka) isPidXY = false;
+  if (!gr_sigm_ns_ka) isPidXY = false;
+  if (!gr_mean_m2_pr) isPidXY = false;
+  if (!gr_mean_ns_pr) isPidXY = false;
+  if (!gr_sigm_m2_pr) isPidXY = false;
+  if (!gr_sigm_ns_pr) isPidXY = false;
+  if (!gr_mean_x_pi)  isPidXY = false;
+  if (!gr_mean_y_pi)  isPidXY = false;
+  if (!gr_sigm_x_pi)  isPidXY = false;
+  if (!gr_sigm_y_pi)  isPidXY = false;
+  if (!gr_mean_x_ka)  isPidXY = false;
+  if (!gr_mean_y_ka)  isPidXY = false;
+  if (!gr_sigm_x_ka)  isPidXY = false;
+  if (!gr_sigm_y_ka)  isPidXY = false;
+  if (!gr_mean_x_pr)  isPidXY = false;
+  if (!gr_mean_y_pr)  isPidXY = false;
+  if (!gr_sigm_x_pr)  isPidXY = false;
+  if (!gr_sigm_y_pr)  isPidXY = false;
+
+  const vector<double> pid_Msqr = {0.13957*0.13957, 0.493677*0.493677, 0.938272*0.938272}; //pi, K, p m^2 in (GeV/c^2)^2
+
 	StFemtoDstReader* femtoReader = new StFemtoDstReader(fileName.c_str());
   femtoReader->Init();
 
@@ -161,6 +213,10 @@ TTree* makeTree4RDF(std::string fileName) {
 	std::vector<float> bbc_en, bbc_phi;
 	std::vector<int> zdc_id, zdc_side, zdc_type; // id, side (west, east), type (vertical, horizontal)
 	std::vector<float> zdc_en, zdc_phi;
+  std::vector<float> tr_pidX, tr_pidY; // PID related information
+  std::vector<float> tr_pidMeanXPi, tr_pidSigmXPi, tr_pidMeanYPi, tr_pidSigmYPi; // PID related information for pions
+  std::vector<float> tr_pidMeanXKa, tr_pidSigmXKa, tr_pidMeanYKa, tr_pidSigmYKa; // PID related information for kaons
+  std::vector<float> tr_pidMeanXPr, tr_pidSigmXPr, tr_pidMeanYPr, tr_pidSigmYPr; // PID related information for protons
 
   const int fNBbcModules = 16;
   const int fNZdcSmdStripsHorizontal = 8;
@@ -190,6 +246,20 @@ TTree* makeTree4RDF(std::string fileName) {
 	tree->Branch("tr_nSigPi", &tr_nSigPi);
 	tree->Branch("tr_nSigKa", &tr_nSigKa);
 	tree->Branch("tr_nSigPr", &tr_nSigPr);
+	tree->Branch("tr_pidX", &tr_pidX);
+	tree->Branch("tr_pidY", &tr_pidY);
+	tree->Branch("tr_pidMeanXPi", &tr_pidMeanXPi);
+	tree->Branch("tr_pidSigmXPi", &tr_pidSigmXPi);
+  tree->Branch("tr_pidMeanYPi", &tr_pidMeanYPi);
+	tree->Branch("tr_pidSigmYPi", &tr_pidSigmYPi);
+  tree->Branch("tr_pidMeanXKa", &tr_pidMeanXKa);
+	tree->Branch("tr_pidSigmXKa", &tr_pidSigmXKa);
+  tree->Branch("tr_pidMeanYKa", &tr_pidMeanYKa);
+	tree->Branch("tr_pidSigmYKa", &tr_pidSigmYKa);
+  tree->Branch("tr_pidMeanXPr", &tr_pidMeanXPr);
+	tree->Branch("tr_pidSigmXPr", &tr_pidSigmXPr);
+  tree->Branch("tr_pidMeanYPr", &tr_pidMeanYPr);
+	tree->Branch("tr_pidSigmYPr", &tr_pidSigmYPr);
 	tree->Branch("bbc_id", &bbc_id);
 	tree->Branch("bbc_side", &bbc_side);
 	tree->Branch("bbc_en", &bbc_en);
@@ -198,8 +268,8 @@ TTree* makeTree4RDF(std::string fileName) {
 	tree->Branch("zdc_side", &zdc_side);
 	tree->Branch("zdc_type", &zdc_type);
 	tree->Branch("zdc_en", &zdc_en);
-	tree->Branch("zdc_phi", &zdc_phi);
-
+  tree->Branch("zdc_phi", &zdc_phi);
+  
   std::cout << "Number of events to read: " << events2read << std::endl;
 	// Loop over events
   for(Long64_t iEvent=0; iEvent<events2read; iEvent++) {
@@ -254,6 +324,20 @@ TTree* makeTree4RDF(std::string fileName) {
 		tr_nSigPi.clear();
 		tr_nSigKa.clear();
 		tr_nSigPr.clear();
+    tr_pidX.clear();
+    tr_pidY.clear();
+    tr_pidMeanXPi.clear();
+    tr_pidSigmXPi.clear();
+    tr_pidMeanYPi.clear();
+    tr_pidSigmYPi.clear();
+    tr_pidMeanXKa.clear();
+    tr_pidSigmXKa.clear();
+    tr_pidMeanYKa.clear();
+    tr_pidSigmYKa.clear();
+    tr_pidMeanXPr.clear();
+    tr_pidSigmXPr.clear();
+    tr_pidMeanYPr.clear();
+    tr_pidSigmYPr.clear();
 
     ev_tofMatched = 0;
 
@@ -288,6 +372,45 @@ TTree* makeTree4RDF(std::string fileName) {
 			tr_nSigPi.push_back(femtoTrack->nSigmaPion());
 			tr_nSigKa.push_back(femtoTrack->nSigmaKaon());
 			tr_nSigPr.push_back(femtoTrack->nSigmaProton());
+
+      //PID related info
+      /*if (isPidXY) {
+        //auto pt = (float) mom.Pt();
+        //auto pt = sqrt(pow(tr_px.at(iTrk),2) + pow(tr_py.at(iTrk),2));
+        auto xy_coord = GetXY(tr_tofm2.at(iTrk), tr_nSigPi.at(iTrk),
+                              pid_Msqr.at(0), pid_Msqr.at(1),
+                              gr_mean_ns_pi->Eval(pt,nullptr,"S"), gr_mean_ns_ka->Eval(pt,nullptr,"S"),
+                              gr_sigm_m2_pi->Eval(pt,nullptr,"S"), gr_sigm_ns_pi->Eval(pt,nullptr,"S"));
+        tr_pidX.push_back(xy_coord.first);
+        tr_pidY.push_back(xy_coord.second);
+        tr_pidMeanXPi.push_back(gr_mean_x_pi->Eval(pt,nullptr,"S"));
+        tr_pidMeanYPi.push_back(gr_mean_y_pi->Eval(pt,nullptr,"S"));
+        tr_pidSigmXPi.push_back(gr_sigm_x_pi->Eval(pt,nullptr,"S"));
+        tr_pidSigmYPi.push_back(gr_sigm_y_pi->Eval(pt,nullptr,"S"));
+        tr_pidMeanXKa.push_back(gr_mean_x_ka->Eval(pt,nullptr,"S"));
+        tr_pidMeanYKa.push_back(gr_mean_y_ka->Eval(pt,nullptr,"S"));
+        tr_pidSigmXKa.push_back(gr_sigm_x_ka->Eval(pt,nullptr,"S"));
+        tr_pidSigmYKa.push_back(gr_sigm_y_ka->Eval(pt,nullptr,"S"));
+        tr_pidMeanXPr.push_back(gr_mean_x_pr->Eval(pt,nullptr,"S"));
+        tr_pidMeanYPr.push_back(gr_mean_y_pr->Eval(pt,nullptr,"S"));
+        tr_pidSigmXPr.push_back(gr_sigm_x_pr->Eval(pt,nullptr,"S"));
+        tr_pidSigmYPr.push_back(gr_sigm_y_pr->Eval(pt,nullptr,"S"));
+      } else */{
+        tr_pidX.push_back(-999.);
+        tr_pidY.push_back(-999.);
+        tr_pidMeanXPi.push_back(-999.);
+        tr_pidMeanYPi.push_back(-999.);
+        tr_pidSigmXPi.push_back(-999.);
+        tr_pidSigmYPi.push_back(-999.);
+        tr_pidMeanXKa.push_back(-999.);
+        tr_pidMeanYKa.push_back(-999.);
+        tr_pidSigmXKa.push_back(-999.);
+        tr_pidSigmYKa.push_back(-999.);
+        tr_pidMeanXPr.push_back(-999.);
+        tr_pidMeanYPr.push_back(-999.);
+        tr_pidSigmXPr.push_back(-999.);
+        tr_pidSigmYPr.push_back(-999.);
+      }
 
 		} // track loop
 
