@@ -46,7 +46,31 @@ vector <vector<string>> uvQv=
   {"u_TPC_L_proton_TWIST", "Q_TPC_R_ch_TWIST"},
   {"u_TPC_R_proton_TWIST", "Q_TPC_L_ch_TWIST"},
   {"u_TPC_L_proton_RESCALED", "Q_TPC_R_ch_RESCALED"},
-  {"u_TPC_R_proton_RESCALED", "Q_TPC_L_ch_RESCALED"}
+  {"u_TPC_R_proton_RESCALED", "Q_TPC_L_ch_RESCALED"},
+  {"u_TPC_L_newpion_PLAIN", "Q_TPC_R_ch_PLAIN"},
+  {"u_TPC_R_newpion_PLAIN", "Q_TPC_L_ch_PLAIN"},
+  {"u_TPC_L_newpion_RECENTERED", "Q_TPC_R_ch_RECENTERED"},
+  {"u_TPC_R_newpion_RECENTERED", "Q_TPC_L_ch_RECENTERED"},
+  {"u_TPC_L_newpion_TWIST", "Q_TPC_R_ch_TWIST"},
+  {"u_TPC_R_newpion_TWIST", "Q_TPC_L_ch_TWIST"},
+  {"u_TPC_L_newpion_RESCALED", "Q_TPC_R_ch_RESCALED"},
+  {"u_TPC_R_newpion_RESCALED", "Q_TPC_L_ch_RESCALED"},
+  {"u_TPC_L_newkaon_PLAIN", "Q_TPC_R_ch_PLAIN"},
+  {"u_TPC_R_newkaon_PLAIN", "Q_TPC_L_ch_PLAIN"},
+  {"u_TPC_L_newkaon_RECENTERED", "Q_TPC_R_ch_RECENTERED"},
+  {"u_TPC_R_newkaon_RECENTERED", "Q_TPC_L_ch_RECENTERED"},
+  {"u_TPC_L_newkaon_TWIST", "Q_TPC_R_ch_TWIST"},
+  {"u_TPC_R_newkaon_TWIST", "Q_TPC_L_ch_TWIST"},
+  {"u_TPC_L_newkaon_RESCALED", "Q_TPC_R_ch_RESCALED"},
+  {"u_TPC_R_newkaon_RESCALED", "Q_TPC_L_ch_RESCALED"},
+  {"u_TPC_L_newproton_PLAIN", "Q_TPC_R_ch_PLAIN"},
+  {"u_TPC_R_newproton_PLAIN", "Q_TPC_L_ch_PLAIN"},
+  {"u_TPC_L_newproton_RECENTERED", "Q_TPC_R_ch_RECENTERED"},
+  {"u_TPC_R_newproton_RECENTERED", "Q_TPC_L_ch_RECENTERED"},
+  {"u_TPC_L_newproton_TWIST", "Q_TPC_R_ch_TWIST"},
+  {"u_TPC_R_newproton_TWIST", "Q_TPC_L_ch_TWIST"},
+  {"u_TPC_L_newproton_RESCALED", "Q_TPC_R_ch_RESCALED"},
+  {"u_TPC_R_newproton_RESCALED", "Q_TPC_L_ch_RESCALED"}
 };
 
 vector <string> uv= 

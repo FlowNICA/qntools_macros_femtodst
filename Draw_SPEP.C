@@ -53,7 +53,25 @@ void Draw_SPEP(TString inFileName = "", TString outFileName = "./test_graphs.roo
     {"u_TPC_L_proton_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
     {"u_TPC_R_proton_RESCALED_Q_TPC_L_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
     {"u_TPC_L_proton_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
-    {"u_TPC_R_proton_RESCALED_Q_TPC_L_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"}
+    {"u_TPC_R_proton_RESCALED_Q_TPC_L_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
+    {"u_TPC_L_newpion_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
+    {"u_TPC_R_newpion_RESCALED_Q_TPC_L_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
+    {"u_TPC_L_newpion_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
+    {"u_TPC_R_newpion_RESCALED_Q_TPC_L_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
+    {"u_TPC_L_newpion_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
+    {"u_TPC_R_newpion_RESCALED_Q_TPC_L_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
+    {"u_TPC_L_newkaon_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
+    {"u_TPC_R_newkaon_RESCALED_Q_TPC_L_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
+    {"u_TPC_L_newkaon_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
+    {"u_TPC_R_newkaon_RESCALED_Q_TPC_L_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
+    {"u_TPC_L_newkaon_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
+    {"u_TPC_R_newkaon_RESCALED_Q_TPC_L_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
+    {"u_TPC_L_newproton_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
+    {"u_TPC_R_newproton_RESCALED_Q_TPC_L_ch_RESCALED_SP2_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP2_evCent"},
+    {"u_TPC_L_newproton_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
+    {"u_TPC_R_newproton_RESCALED_Q_TPC_L_ch_RESCALED_X2X2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X2X2_evCent"},
+    {"u_TPC_L_newproton_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"},
+    {"u_TPC_R_newproton_RESCALED_Q_TPC_L_ch_RESCALED_Y2Y2_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y2Y2_evCent"}
   };
   std::vector<std::pair<std::string, std::string>> corr_names_v3 = {
     {"u_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP3_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP3_evCent"},
@@ -79,14 +97,35 @@ void Draw_SPEP(TString inFileName = "", TString outFileName = "./test_graphs.roo
     {"u_TPC_L_proton_RESCALED_Q_TPC_R_ch_RESCALED_X3X3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X3X3_evCent"},
     {"u_TPC_R_proton_RESCALED_Q_TPC_L_ch_RESCALED_X3X3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X3X3_evCent"},
     {"u_TPC_L_proton_RESCALED_Q_TPC_R_ch_RESCALED_Y3Y3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y3Y3_evCent"},
-    {"u_TPC_R_proton_RESCALED_Q_TPC_L_ch_RESCALED_Y3Y3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y3Y3_evCent"}
+    {"u_TPC_R_proton_RESCALED_Q_TPC_L_ch_RESCALED_Y3Y3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y3Y3_evCent"},
+    {"u_TPC_L_newpion_RESCALED_Q_TPC_R_ch_RESCALED_SP3_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP3_evCent"},
+    {"u_TPC_R_newpion_RESCALED_Q_TPC_L_ch_RESCALED_SP3_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP3_evCent"},
+    {"u_TPC_L_newpion_RESCALED_Q_TPC_R_ch_RESCALED_X3X3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X3X3_evCent"},
+    {"u_TPC_R_newpion_RESCALED_Q_TPC_L_ch_RESCALED_X3X3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X3X3_evCent"},
+    {"u_TPC_L_newpion_RESCALED_Q_TPC_R_ch_RESCALED_Y3Y3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y3Y3_evCent"},
+    {"u_TPC_R_newpion_RESCALED_Q_TPC_L_ch_RESCALED_Y3Y3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y3Y3_evCent"},
+    {"u_TPC_L_newkaon_RESCALED_Q_TPC_R_ch_RESCALED_SP3_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP3_evCent"},
+    {"u_TPC_R_newkaon_RESCALED_Q_TPC_L_ch_RESCALED_SP3_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP3_evCent"},
+    {"u_TPC_L_newkaon_RESCALED_Q_TPC_R_ch_RESCALED_X3X3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X3X3_evCent"},
+    {"u_TPC_R_newkaon_RESCALED_Q_TPC_L_ch_RESCALED_X3X3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X3X3_evCent"},
+    {"u_TPC_L_newkaon_RESCALED_Q_TPC_R_ch_RESCALED_Y3Y3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y3Y3_evCent"},
+    {"u_TPC_R_newkaon_RESCALED_Q_TPC_L_ch_RESCALED_Y3Y3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y3Y3_evCent"},
+    {"u_TPC_L_newproton_RESCALED_Q_TPC_R_ch_RESCALED_SP3_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP3_evCent"},
+    {"u_TPC_R_newproton_RESCALED_Q_TPC_L_ch_RESCALED_SP3_evCent",  "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_SP3_evCent"},
+    {"u_TPC_L_newproton_RESCALED_Q_TPC_R_ch_RESCALED_X3X3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X3X3_evCent"},
+    {"u_TPC_R_newproton_RESCALED_Q_TPC_L_ch_RESCALED_X3X3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_X3X3_evCent"},
+    {"u_TPC_L_newproton_RESCALED_Q_TPC_R_ch_RESCALED_Y3Y3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y3Y3_evCent"},
+    {"u_TPC_R_newproton_RESCALED_Q_TPC_L_ch_RESCALED_Y3Y3_evCent", "Q_TPC_L_ch_RESCALED_Q_TPC_R_ch_RESCALED_Y3Y3_evCent"}
   };
 
   // Indices for <uLQR> and <uRQL>: {{i_uLQR, i_iRQL}, ...}
   std::vector<std::pair<int, int>> LR_indices = {{0,1},{2,3},{4,5},
                                                 {6,7},{8,9},{10,11},
                                                 {12,13},{14,15},{16,17},
-                                                {18,19},{20,21},{22,23}
+                                                {18,19},{20,21},{22,23},
+                                                {24,25},{26,27},{28,29},
+                                                {30,31},{32,33},{34,35},
+                                                {36,37},{38,39},{40,41}
                                                 };
 
   // Prepare names for vn
