@@ -1,6 +1,11 @@
 using filteredDF=ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void>;
 using definedDF=ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager, void>;
 using ROOT::VecOps::RVec;
+using RVecD=ROOT::VecOps::RVec<Double_t>;
+using RVecF=ROOT::VecOps::RVec<Float_t>;
+using RVecI=ROOT::VecOps::RVec<Int_t>;
+using RVecS=ROOT::VecOps::RVec<Short_t>;
+using ROOT::VecOps::Map;
 
 enum varType
 {

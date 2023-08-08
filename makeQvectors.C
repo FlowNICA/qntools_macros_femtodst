@@ -28,163 +28,144 @@ filteredDF defineVariables(definedDF &d)
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Define function to get p from px, py, pz
-  auto getP = [](const ROOT::VecOps::RVec<Double_t> &px, const ROOT::VecOps::RVec<Double_t> &py, const ROOT::VecOps::RVec<Double_t> &pz)
-  {
-    auto p = ROOT::VecOps::Map(px, py, pz, [](double x, double y, double z)
-                               { return (double)sqrt(x * x + y * y + z * z); });
+  auto getP = [](const RVecD &px, const RVecD &py, const RVecD &pz){
+    auto p = Map(px, py, pz, [](double x, double y, double z){
+        return (double)sqrt(x * x + y * y + z * z); });
     return p;
   };
 
   // Define function to get pt from px, py
-  auto getPt = [](const ROOT::VecOps::RVec<Double_t> &px, const ROOT::VecOps::RVec<Double_t> &py)
-  {
-    auto pt = ROOT::VecOps::Map(px, py, [](double x, double y)
-                                { return (double)sqrt(x * x + y * y); });
+  auto getPt = [](const RVecD &px, const RVecD &py){
+    auto pt = Map(px, py, [](double x, double y){
+        return (double)sqrt(x * x + y * y); });
     return pt;
   };
 
   // Define function to get eta from px, py, pz
-  auto getEta = [](const ROOT::VecOps::RVec<Double_t> &px, const ROOT::VecOps::RVec<Double_t> &py, const ROOT::VecOps::RVec<Double_t> &pz)
-  {
-    auto eta = ROOT::VecOps::Map(px, py, pz, [](double x, double y, double z)
-                                 { 
-      auto mod = (double)sqrt(x*x + y*y + z*z);
-      if (mod == z) return -999.;
-      return (double)(0.5 * log( (mod + z)/(mod - z) )); });
+  auto getEta = [](const RVecD &px, const RVecD &py, const RVecD &pz){
+    auto eta = Map(px, py, pz, [](double x, double y, double z){ 
+        auto mod = (double)sqrt(x*x + y*y + z*z);
+        if (mod == z) return -999.;
+        return (double)(0.5 * log( (mod + z)/(mod - z) )); });
     return eta;
   };
 
   // Define function to get azimuthal angle from px, py
-  auto getPhi = [](const ROOT::VecOps::RVec<Double_t> &px, const ROOT::VecOps::RVec<Double_t> &py)
-  {
-    auto phi = ROOT::VecOps::Map(px, py, [](double x, double y)
-                                 { return (double)atan2(y, x); });
+  auto getPhi = [](const RVecD &px, const RVecD &py){
+    auto phi = Map(px, py, [](double x, double y){
+        return (double)atan2(y, x); });
     return phi;
   };
 
   // Assign a random number from 1 to 4
-  auto rndNum = [](const ROOT::VecOps::RVec<Double_t> &px)
-  {
-    auto result = ROOT::VecOps::Map(px, [](double x)
-                                    { 
-			// Prepare variables for a random sub-event determination
-			std::random_device rd; 
-			std::mt19937 gen(rd()); 
-			std::uniform_int_distribution<> distr(1,4); // 4 sub-events division
-			return (double) distr(gen); });
+  auto rndNum = [](const RVecD &px){
+    auto result = Map(px, [](double x){ 
+        // Prepare variables for a random sub-event determination
+        std::random_device rd; 
+        std::mt19937 gen(rd()); 
+        std::uniform_int_distribution<> distr(1,4); // 4 sub-events division
+        return (double) distr(gen); });
     return result;
   };
 
   // PID functions
   //  is it pion?
-  auto pidPion = [](const ROOT::VecOps::RVec<Int_t> &isTof, const ROOT::VecOps::RVec<Double_t> &p, const ROOT::VecOps::RVec<Float_t> &m2,
-                    const ROOT::VecOps::RVec<Float_t> &nsigPi, const ROOT::VecOps::RVec<Float_t> &nsigKa)
-  {
-    auto result = ROOT::VecOps::Map(isTof, p, m2, nsigPi, nsigKa, [](int _isTof, double _p, float _m2, float _nsigPi, float _nsigKa)
-    {
-      int ispion = 0;
-      if (_isTof!=1 && abs(_nsigPi) < 2. && _p > 0.2 && _p < 0.6)
-        ispion = 1;
-      if (_isTof!=1 && abs(_nsigPi) < 2. && abs(_nsigKa) > 2. && _p > 0.6 && _p < 0.7)
-        ispion = 1;
-      if (_isTof==1 && abs(_nsigPi) < 3. && _m2 > -0.15 && _m2 < 0.1 && _p > 0.2 && _p < 3.4)
-        ispion = 1;
-       return ispion;	
-    });
+  auto pidPion = [](const RVecI &isTof, const RVecD &p, const RVecF &m2,
+                    const RVecF &nsigPi, const RVecF &nsigKa){
+    auto result = Map(isTof, p, m2, nsigPi, nsigKa, [](int _isTof, double _p, float _m2, float _nsigPi, float _nsigKa){
+        int ispion = 0;
+        if (_isTof!=1 && abs(_nsigPi) < 2. && _p > 0.2 && _p < 0.6)
+          ispion = 1;
+        if (_isTof!=1 && abs(_nsigPi) < 2. && abs(_nsigKa) > 2. && _p > 0.6 && _p < 0.7)
+          ispion = 1;
+        if (_isTof==1 && abs(_nsigPi) < 3. && _m2 > -0.15 && _m2 < 0.1 && _p > 0.2 && _p < 3.4)
+          ispion = 1;
+        return ispion;	
+      });
     return result;
   };
 
   //  is it kaon?
-  auto pidKaon = [](const ROOT::VecOps::RVec<Int_t> &isTof, const ROOT::VecOps::RVec<Double_t> &p, const ROOT::VecOps::RVec<Float_t> &m2,
-                    const ROOT::VecOps::RVec<Float_t> &nsigPi, const ROOT::VecOps::RVec<Float_t> &nsigKa)
-  {
-    auto result = ROOT::VecOps::Map(isTof, p, m2, nsigPi, nsigKa, [](int _isTof, double _p, float _m2, float _nsigPi, float _nsigKa)
-    {
-      int iskaon = 0;
-      if (_isTof!=1 && abs(_nsigKa) < 2 && _p > 0.2 && _p < 0.5)
-        iskaon = 1;
-      if (_isTof!=1 && abs(_nsigKa) < 2. && abs(_nsigPi) > 3. && _p > 0.5 && _p < 0.7)
-        iskaon = 1;
-      if (_isTof==1 && abs(_nsigKa) < 3. && _m2 > 0.2 && _m2 < 0.32 && _p > 0.2 && _p < 3.4)
-        iskaon = 1;
-       return iskaon;	
-    });
+  auto pidKaon = [](const RVecI &isTof, const RVecD &p, const RVecF &m2,
+                    const RVecF &nsigPi, const RVecF &nsigKa){
+    auto result = Map(isTof, p, m2, nsigPi, nsigKa, [](int _isTof, double _p, float _m2, float _nsigPi, float _nsigKa){
+        int iskaon = 0;
+        if (_isTof!=1 && abs(_nsigKa) < 2 && _p > 0.2 && _p < 0.5)
+          iskaon = 1;
+        if (_isTof!=1 && abs(_nsigKa) < 2. && abs(_nsigPi) > 3. && _p > 0.5 && _p < 0.7)
+          iskaon = 1;
+        if (_isTof==1 && abs(_nsigKa) < 3. && _m2 > 0.2 && _m2 < 0.32 && _p > 0.2 && _p < 3.4)
+          iskaon = 1;
+        return iskaon;	
+      });
     return result;
   };
 
   //  is it proton?
-  auto pidProton = [](const ROOT::VecOps::RVec<Int_t> &isTof, const ROOT::VecOps::RVec<Double_t> &p, const ROOT::VecOps::RVec<Float_t> &m2,
-                      const ROOT::VecOps::RVec<Float_t> &nsigPi, const ROOT::VecOps::RVec<Float_t> &nsigPr)
-  {
-    auto result = ROOT::VecOps::Map(isTof, p, m2, nsigPi, nsigPr, [](int _isTof, double _p, float _m2, float _nsigPi, float _nsigPr)
-                                    {
-      int isproton = 0;
-      if (_isTof!=1 && abs(_nsigPr) < 2 && _p > 0.4 && _p < 0.9)
-        isproton = 1;
-      if (_isTof!=1 && abs(_nsigPr) < 2. && abs(_nsigPi) > 3. && _p > 0.9 && _p < 1.2)
-        isproton = 1;
-      if (_isTof==1 && abs(_nsigPr) < 3. && _m2 > 0.75 && _m2 < 1.2 && _p > 0.2 && _p < 3.4)
-        isproton = 1; 
-      return isproton;
-    });
+  auto pidProton = [](const RVecI &isTof, const RVecD &p, const RVecF &m2,
+                      const RVecF &nsigPi, const RVecF &nsigPr){
+    auto result = Map(isTof, p, m2, nsigPi, nsigPr, [](int _isTof, double _p, float _m2, float _nsigPi, float _nsigPr){
+        int isproton = 0;
+        if (_isTof!=1 && abs(_nsigPr) < 2 && _p > 0.4 && _p < 0.9)
+          isproton = 1;
+        if (_isTof!=1 && abs(_nsigPr) < 2. && abs(_nsigPi) > 3. && _p > 0.9 && _p < 1.2)
+          isproton = 1;
+        if (_isTof==1 && abs(_nsigPr) < 3. && _m2 > 0.75 && _m2 < 1.2 && _p > 0.2 && _p < 3.4)
+          isproton = 1; 
+        return isproton;
+      });
     return result;
   };
 
   // NewPID (STAR-like)
   // is it pion?
-  auto newpidPion = [](const ROOT::VecOps::RVec<Float_t> &pidx, const ROOT::VecOps::RVec<Float_t> &pidy,
-                       const ROOT::VecOps::RVec<Float_t> &meanXpi, const ROOT::VecOps::RVec<Float_t> &meanYpi, const ROOT::VecOps::RVec<Float_t> &sigmXpi, const ROOT::VecOps::RVec<Float_t> &sigmYpi,
-                       const ROOT::VecOps::RVec<Float_t> &meanXka, const ROOT::VecOps::RVec<Float_t> &meanYka, const ROOT::VecOps::RVec<Float_t> &sigmXka, const ROOT::VecOps::RVec<Float_t> &sigmYka,
-                       const ROOT::VecOps::RVec<Float_t> &meanXpr, const ROOT::VecOps::RVec<Float_t> &meanYpr, const ROOT::VecOps::RVec<Float_t> &sigmXpr, const ROOT::VecOps::RVec<Float_t> &sigmYpr)
-  {
-    auto result = ROOT::VecOps::Map(pidx, pidy, meanXpi, meanYpi, sigmXpi, sigmYpi, meanXka, meanYka, sigmXka, sigmYka, meanXpr, meanYpr, sigmXpr, sigmYpr,
-                                    [](float _pidx, float _pidy, float _meanXpi, float _meanYpi, float _sigmXpi, float _sigmYpi, float _meanXka, float _meanYka, float _sigmXka, float _sigmYka, float _meanXpr, float _meanYpr, float _sigmXpr, float _sigmYpr)
-      {
-        int ispion = 0;
-        if ( pow(_pidx - _meanXpi,2)/pow(3.*_sigmXpi,2)+pow(_pidy - _meanYpi,2)/pow(3.*_sigmYpi,2) < 1. &&
-             pow(_pidx - _meanXka,2)/pow(3.*_sigmXka,2)+pow(_pidy - _meanYka,2)/pow(3.*_sigmYka,2) > 1. &&
-             pow(_pidx - _meanXpr,2)/pow(3.*_sigmXpr,2)+pow(_pidy - _meanYpr,2)/pow(3.*_sigmYpr,2) > 1.)
-          ispion = 1;
-        return ispion;
-      });
+  auto newpidPion = [](const RVecF &pidx, const RVecF &pidy,
+                       const RVecF &meanXpi, const RVecF &meanYpi, const RVecF &sigmXpi, const RVecF &sigmYpi,
+                       const RVecF &meanXka, const RVecF &meanYka, const RVecF &sigmXka, const RVecF &sigmYka,
+                       const RVecF &meanXpr, const RVecF &meanYpr, const RVecF &sigmXpr, const RVecF &sigmYpr){
+    auto result = Map(pidx, pidy, meanXpi, meanYpi, sigmXpi, sigmYpi, meanXka, meanYka, sigmXka, sigmYka, meanXpr, meanYpr, sigmXpr, sigmYpr,
+                      [](float _pidx, float _pidy, float _meanXpi, float _meanYpi, float _sigmXpi, float _sigmYpi, float _meanXka, float _meanYka, float _sigmXka, float _sigmYka, float _meanXpr, float _meanYpr, float _sigmXpr, float _sigmYpr){
+                        int ispion = 0;
+                        if ( pow(_pidx - _meanXpi,2)/pow(3.*_sigmXpi,2)+pow(_pidy - _meanYpi,2)/pow(3.*_sigmYpi,2) < 1. &&
+                             pow(_pidx - _meanXka,2)/pow(3.*_sigmXka,2)+pow(_pidy - _meanYka,2)/pow(3.*_sigmYka,2) > 1. &&
+                             pow(_pidx - _meanXpr,2)/pow(3.*_sigmXpr,2)+pow(_pidy - _meanYpr,2)/pow(3.*_sigmYpr,2) > 1.)
+                          ispion = 1;
+                        return ispion;
+                      });
     return result;
   };
 
   // is it kaon?
-  auto newpidKaon = [](const ROOT::VecOps::RVec<Float_t> &pidx, const ROOT::VecOps::RVec<Float_t> &pidy,
-                       const ROOT::VecOps::RVec<Float_t> &meanXpi, const ROOT::VecOps::RVec<Float_t> &meanYpi, const ROOT::VecOps::RVec<Float_t> &sigmXpi, const ROOT::VecOps::RVec<Float_t> &sigmYpi,
-                       const ROOT::VecOps::RVec<Float_t> &meanXka, const ROOT::VecOps::RVec<Float_t> &meanYka, const ROOT::VecOps::RVec<Float_t> &sigmXka, const ROOT::VecOps::RVec<Float_t> &sigmYka,
-                       const ROOT::VecOps::RVec<Float_t> &meanXpr, const ROOT::VecOps::RVec<Float_t> &meanYpr, const ROOT::VecOps::RVec<Float_t> &sigmXpr, const ROOT::VecOps::RVec<Float_t> &sigmYpr)
-  {
-    auto result = ROOT::VecOps::Map(pidx, pidy, meanXpi, meanYpi, sigmXpi, sigmYpi, meanXka, meanYka, sigmXka, sigmYka, meanXpr, meanYpr, sigmXpr, sigmYpr,
-                                    [](float _pidx, float _pidy, float _meanXpi, float _meanYpi, float _sigmXpi, float _sigmYpi, float _meanXka, float _meanYka, float _sigmXka, float _sigmYka, float _meanXpr, float _meanYpr, float _sigmXpr, float _sigmYpr)
-      {
-        int iskaon = 0;
-        if ( pow(_pidx - _meanXpi,2)/pow(3.*_sigmXpi,2)+pow(_pidy - _meanYpi,2)/pow(3.*_sigmYpi,2) > 1. &&
-             pow(_pidx - _meanXka,2)/pow(3.*_sigmXka,2)+pow(_pidy - _meanYka,2)/pow(3.*_sigmYka,2) < 1. &&
-             pow(_pidx - _meanXpr,2)/pow(3.*_sigmXpr,2)+pow(_pidy - _meanYpr,2)/pow(3.*_sigmYpr,2) > 1.)
-          iskaon = 1;
-        return iskaon;
-      });
+  auto newpidKaon = [](const RVecF &pidx, const RVecF &pidy,
+                       const RVecF &meanXpi, const RVecF &meanYpi, const RVecF &sigmXpi, const RVecF &sigmYpi,
+                       const RVecF &meanXka, const RVecF &meanYka, const RVecF &sigmXka, const RVecF &sigmYka,
+                       const RVecF &meanXpr, const RVecF &meanYpr, const RVecF &sigmXpr, const RVecF &sigmYpr){
+    auto result = Map(pidx, pidy, meanXpi, meanYpi, sigmXpi, sigmYpi, meanXka, meanYka, sigmXka, sigmYka, meanXpr, meanYpr, sigmXpr, sigmYpr,
+                      [](float _pidx, float _pidy, float _meanXpi, float _meanYpi, float _sigmXpi, float _sigmYpi, float _meanXka, float _meanYka, float _sigmXka, float _sigmYka, float _meanXpr, float _meanYpr, float _sigmXpr, float _sigmYpr){
+                        int iskaon = 0;
+                        if ( pow(_pidx - _meanXpi,2)/pow(3.*_sigmXpi,2)+pow(_pidy - _meanYpi,2)/pow(3.*_sigmYpi,2) > 1. &&
+                             pow(_pidx - _meanXka,2)/pow(3.*_sigmXka,2)+pow(_pidy - _meanYka,2)/pow(3.*_sigmYka,2) < 1. &&
+                             pow(_pidx - _meanXpr,2)/pow(3.*_sigmXpr,2)+pow(_pidy - _meanYpr,2)/pow(3.*_sigmYpr,2) > 1.)
+                          iskaon = 1;
+                        return iskaon;
+                      });
     return result;
   };
 
   // is it proton?
-  auto newpidProton = [](const ROOT::VecOps::RVec<Float_t> &pidx, const ROOT::VecOps::RVec<Float_t> &pidy,
-                         const ROOT::VecOps::RVec<Float_t> &meanXpi, const ROOT::VecOps::RVec<Float_t> &meanYpi, const ROOT::VecOps::RVec<Float_t> &sigmXpi, const ROOT::VecOps::RVec<Float_t> &sigmYpi,
-                         const ROOT::VecOps::RVec<Float_t> &meanXka, const ROOT::VecOps::RVec<Float_t> &meanYka, const ROOT::VecOps::RVec<Float_t> &sigmXka, const ROOT::VecOps::RVec<Float_t> &sigmYka,
-                         const ROOT::VecOps::RVec<Float_t> &meanXpr, const ROOT::VecOps::RVec<Float_t> &meanYpr, const ROOT::VecOps::RVec<Float_t> &sigmXpr, const ROOT::VecOps::RVec<Float_t> &sigmYpr)
-  {
-    auto result = ROOT::VecOps::Map(pidx, pidy, meanXpi, meanYpi, sigmXpi, sigmYpi, meanXka, meanYka, sigmXka, sigmYka, meanXpr, meanYpr, sigmXpr, sigmYpr,
-                                    [](float _pidx, float _pidy, float _meanXpi, float _meanYpi, float _sigmXpi, float _sigmYpi, float _meanXka, float _meanYka, float _sigmXka, float _sigmYka, float _meanXpr, float _meanYpr, float _sigmXpr, float _sigmYpr)
-      {
-        int isproton = 0;
-        if ( pow(_pidx - _meanXpi,2)/pow(3.*_sigmXpi,2)+pow(_pidy - _meanYpi,2)/pow(3.*_sigmYpi,2) > 1. &&
-             pow(_pidx - _meanXka,2)/pow(3.*_sigmXka,2)+pow(_pidy - _meanYka,2)/pow(3.*_sigmYka,2) > 1. &&
-             pow(_pidx - _meanXpr,2)/pow(3.*_sigmXpr,2)+pow(_pidy - _meanYpr,2)/pow(3.*_sigmYpr,2) < 1.)
-          isproton = 1;
-        return isproton;
-      });
+  auto newpidProton = [](const RVecF &pidx, const RVecF &pidy,
+                         const RVecF &meanXpi, const RVecF &meanYpi, const RVecF &sigmXpi, const RVecF &sigmYpi,
+                         const RVecF &meanXka, const RVecF &meanYka, const RVecF &sigmXka, const RVecF &sigmYka,
+                         const RVecF &meanXpr, const RVecF &meanYpr, const RVecF &sigmXpr, const RVecF &sigmYpr){
+    auto result = Map(pidx, pidy, meanXpi, meanYpi, sigmXpi, sigmYpi, meanXka, meanYka, sigmXka, sigmYka, meanXpr, meanYpr, sigmXpr, sigmYpr,
+                      [](float _pidx, float _pidy, float _meanXpi, float _meanYpi, float _sigmXpi, float _sigmYpi, float _meanXka, float _meanYka, float _sigmXka, float _sigmYka, float _meanXpr, float _meanYpr, float _sigmXpr, float _sigmYpr){
+                        int isproton = 0;
+                        if ( pow(_pidx - _meanXpi,2)/pow(3.*_sigmXpi,2)+pow(_pidy - _meanYpi,2)/pow(3.*_sigmYpi,2) > 1. &&
+                             pow(_pidx - _meanXka,2)/pow(3.*_sigmXka,2)+pow(_pidy - _meanYka,2)/pow(3.*_sigmYka,2) > 1. &&
+                             pow(_pidx - _meanXpr,2)/pow(3.*_sigmXpr,2)+pow(_pidy - _meanYpr,2)/pow(3.*_sigmYpr,2) < 1.)
+                          isproton = 1;
+                        return isproton;
+                      });
     return result;
   };
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -234,15 +215,15 @@ filteredDF defineVariables(definedDF &d)
     .Filter("abs(evVtxZ)<30.")                      // At least one filter should be present (even if it always returns true)!!!
     .Filter("sqrt(evVtxX*evVtxX+evVtxY*evVtxY)<2.") // At least one filter should be present (even if it always returns true)!!!
     .Filter("abs(evVtxZ-evVpdZ)<3.")                // At least one filter should be present (even if it always returns true)!!!
-  ;
+    ;
 
   varPatterns =
-      {
-          "ev(Cent|VtxX|VtxY|VtxZ|VpdZ)",                                               // kEvent
-          "",                                                                           // kChannel
-          "tr(P|Pt|Eta|Phi|Ch|Nhits|NhitsFit|NhitsPoss|Dca|Rnd4Sub|PidPi|PidKa|PidPr|NewPidPi|NewPidKa|NewPidPr|M2|NsigPi|NsigKa|NsigPr|Dedx|NewPidX|NewPidY)", // kRecParticle
-          ""                                                                            // kSimParticle
-      };
+    {
+      "ev(Cent|VtxX|VtxY|VtxZ|VpdZ)",                                               // kEvent
+      "",                                                                           // kChannel
+      "tr(P|Pt|Eta|Phi|Ch|Nhits|NhitsFit|NhitsPoss|Dca|Rnd4Sub|PidPi|PidKa|PidPr|NewPidPi|NewPidKa|NewPidPr|M2|NsigPi|NsigKa|NsigPr|Dedx|NewPidX|NewPidY)", // kRecParticle
+      ""                                                                            // kSimParticle
+    };
 
   return dd;
 }
@@ -250,18 +231,18 @@ filteredDF defineVariables(definedDF &d)
 void setupQvectors()
 {
   vector<Qn::AxisD> corrAxesEvent =
-      {
-          {"evCent", {0., 5., 10., 15., 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80.}},
-          {"evVtxZ", {-30., -24., -18., -12., -6., 0., 6., 12., 18., 24., 30.}},
-      };
+    {
+      {"evCent", {0., 5., 10., 15., 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80.}},
+      {"evVtxZ", {-30., -24., -18., -12., -6., 0., 6., 12., 18., 24., 30.}},
+    };
 
   vector<Qn::AxisD> corrAxesParticle =
-      {
-          //{"trPt",50,0,5},
-          {"trPt", {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2., 2.2, 2.4, 2.6, 2.8, 3., 3.25, 3.5, 3.75, 4., 4.5, 5.}},
-          //{"trEta", 20, -1., 1.},
-          //{"trEta",4,-1.,1.},
-      };
+    {
+      //{"trPt",50,0,5},
+      {"trPt", {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2., 2.2, 2.4, 2.6, 2.8, 3., 3.25, 3.5, 3.75, 4., 4.5, 5.}},
+      //{"trEta", 20, -1., 1.},
+      //{"trEta",4,-1.,1.},
+    };
 
   for (auto &axis : corrAxesEvent)
     man.AddCorrectionAxis(axis);
