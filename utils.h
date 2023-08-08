@@ -372,30 +372,45 @@ TTree* makeTree4RDF(std::string fileName="",
 			tr_nSigPi.push_back(femtoTrack->nSigmaPion());
 			tr_nSigKa.push_back(femtoTrack->nSigmaKaon());
 			tr_nSigPr.push_back(femtoTrack->nSigmaProton());
+      auto pt = (float) mom.Pt();
 
       //PID related info
-      /*if (isPidXY) {
-        //auto pt = (float) mom.Pt();
-        //auto pt = sqrt(pow(tr_px.at(iTrk),2) + pow(tr_py.at(iTrk),2));
+      if (isPidXY && pt > 0.3 && pt < 3.2) {
+        double mean_ns_pi = gr_mean_ns_pi->Eval(pt,nullptr,"S");
+        double mean_ns_ka = gr_mean_ns_ka->Eval(pt,nullptr,"S");
+        double sigm_m2_pi = gr_sigm_m2_pi->Eval(pt,nullptr,"S");
+        double sigm_ns_pi = gr_sigm_ns_pi->Eval(pt,nullptr,"S");
+        double mean_x_pi  = gr_mean_x_pi->Eval(pt,nullptr,"S");
+        double mean_y_pi  = gr_mean_y_pi->Eval(pt,nullptr,"S");
+        double sigm_x_pi  = gr_sigm_x_pi->Eval(pt,nullptr,"S");
+        double sigm_y_pi  = gr_sigm_y_pi->Eval(pt,nullptr,"S");
+        double mean_x_ka  = gr_mean_x_ka->Eval(pt,nullptr,"S");
+        double mean_y_ka  = gr_mean_y_ka->Eval(pt,nullptr,"S");
+        double sigm_x_ka  = gr_sigm_x_ka->Eval(pt,nullptr,"S");
+        double sigm_y_ka  = gr_sigm_y_ka->Eval(pt,nullptr,"S");
+        double mean_x_pr  = gr_mean_x_pr->Eval(pt,nullptr,"S");
+        double mean_y_pr  = gr_mean_y_pr->Eval(pt,nullptr,"S");
+        double sigm_x_pr  = gr_sigm_x_pr->Eval(pt,nullptr,"S");
+        double sigm_y_pr  = gr_sigm_y_pr->Eval(pt,nullptr,"S");
+
         auto xy_coord = GetXY(tr_tofm2.at(iTrk), tr_nSigPi.at(iTrk),
                               pid_Msqr.at(0), pid_Msqr.at(1),
-                              gr_mean_ns_pi->Eval(pt,nullptr,"S"), gr_mean_ns_ka->Eval(pt,nullptr,"S"),
-                              gr_sigm_m2_pi->Eval(pt,nullptr,"S"), gr_sigm_ns_pi->Eval(pt,nullptr,"S"));
+                              mean_ns_pi, mean_ns_ka, sigm_m2_pi, sigm_ns_pi);
         tr_pidX.push_back(xy_coord.first);
         tr_pidY.push_back(xy_coord.second);
-        tr_pidMeanXPi.push_back(gr_mean_x_pi->Eval(pt,nullptr,"S"));
-        tr_pidMeanYPi.push_back(gr_mean_y_pi->Eval(pt,nullptr,"S"));
-        tr_pidSigmXPi.push_back(gr_sigm_x_pi->Eval(pt,nullptr,"S"));
-        tr_pidSigmYPi.push_back(gr_sigm_y_pi->Eval(pt,nullptr,"S"));
-        tr_pidMeanXKa.push_back(gr_mean_x_ka->Eval(pt,nullptr,"S"));
-        tr_pidMeanYKa.push_back(gr_mean_y_ka->Eval(pt,nullptr,"S"));
-        tr_pidSigmXKa.push_back(gr_sigm_x_ka->Eval(pt,nullptr,"S"));
-        tr_pidSigmYKa.push_back(gr_sigm_y_ka->Eval(pt,nullptr,"S"));
-        tr_pidMeanXPr.push_back(gr_mean_x_pr->Eval(pt,nullptr,"S"));
-        tr_pidMeanYPr.push_back(gr_mean_y_pr->Eval(pt,nullptr,"S"));
-        tr_pidSigmXPr.push_back(gr_sigm_x_pr->Eval(pt,nullptr,"S"));
-        tr_pidSigmYPr.push_back(gr_sigm_y_pr->Eval(pt,nullptr,"S"));
-      } else */{
+        tr_pidMeanXPi.push_back(mean_x_pi);
+        tr_pidMeanYPi.push_back(mean_y_pi);
+        tr_pidSigmXPi.push_back(sigm_x_pi);
+        tr_pidSigmYPi.push_back(sigm_y_pi);
+        tr_pidMeanXKa.push_back(mean_x_ka);
+        tr_pidMeanYKa.push_back(mean_y_ka);
+        tr_pidSigmXKa.push_back(sigm_x_ka);
+        tr_pidSigmYKa.push_back(sigm_y_ka);
+        tr_pidMeanXPr.push_back(mean_x_pr);
+        tr_pidMeanYPr.push_back(mean_y_pr);
+        tr_pidSigmXPr.push_back(sigm_x_pr);
+        tr_pidSigmYPr.push_back(sigm_y_pr);
+      } else {
         tr_pidX.push_back(-999.);
         tr_pidY.push_back(-999.);
         tr_pidMeanXPi.push_back(-999.);

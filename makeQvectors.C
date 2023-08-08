@@ -119,16 +119,17 @@ filteredDF defineVariables(definedDF &d)
 
   // NewPID (STAR-like)
   // is it pion?
-  auto newpidPion = [](const RVecF &pidx, const RVecF &pidy,
+  auto newpidPion = [](const RVecF &pidx, const RVecF &pidy, const RVecI &isTof, const RVecF &m2,
                        const RVecF &meanXpi, const RVecF &meanYpi, const RVecF &sigmXpi, const RVecF &sigmYpi,
                        const RVecF &meanXka, const RVecF &meanYka, const RVecF &sigmXka, const RVecF &sigmYka,
                        const RVecF &meanXpr, const RVecF &meanYpr, const RVecF &sigmXpr, const RVecF &sigmYpr){
-    auto result = Map(pidx, pidy, meanXpi, meanYpi, sigmXpi, sigmYpi, meanXka, meanYka, sigmXka, sigmYka, meanXpr, meanYpr, sigmXpr, sigmYpr,
-                      [](float _pidx, float _pidy, float _meanXpi, float _meanYpi, float _sigmXpi, float _sigmYpi, float _meanXka, float _meanYka, float _sigmXka, float _sigmYka, float _meanXpr, float _meanYpr, float _sigmXpr, float _sigmYpr){
+    auto result = Map(pidx, pidy, isTof, m2, meanXpi, meanYpi, sigmXpi, sigmYpi, meanXka, meanYka, sigmXka, sigmYka, meanXpr, meanYpr, sigmXpr, sigmYpr,
+                      [](float _pidx, float _pidy, int _isTof, float _m2, float _meanXpi, float _meanYpi, float _sigmXpi, float _sigmYpi, float _meanXka, float _meanYka, float _sigmXka, float _sigmYka, float _meanXpr, float _meanYpr, float _sigmXpr, float _sigmYpr){
                         int ispion = 0;
-                        if ( pow(_pidx - _meanXpi,2)/pow(3.*_sigmXpi,2)+pow(_pidy - _meanYpi,2)/pow(3.*_sigmYpi,2) < 1. &&
+                        if ( pow(_pidx - _meanXpi,2)/pow(3.*_sigmXpi,2)+pow(_pidy - _meanYpi,2)/pow(3.*_sigmYpi,2) < 1. && _isTof==1 && _m2 > -0.15 && _m2 < 0.1)
+                        /*if ( pow(_pidx - _meanXpi,2)/pow(3.*_sigmXpi,2)+pow(_pidy - _meanYpi,2)/pow(3.*_sigmYpi,2) < 1. &&
                              pow(_pidx - _meanXka,2)/pow(3.*_sigmXka,2)+pow(_pidy - _meanYka,2)/pow(3.*_sigmYka,2) > 1. &&
-                             pow(_pidx - _meanXpr,2)/pow(3.*_sigmXpr,2)+pow(_pidy - _meanYpr,2)/pow(3.*_sigmYpr,2) > 1.)
+                             pow(_pidx - _meanXpr,2)/pow(3.*_sigmXpr,2)+pow(_pidy - _meanYpr,2)/pow(3.*_sigmYpr,2) > 1.)*/
                           ispion = 1;
                         return ispion;
                       });
@@ -136,16 +137,17 @@ filteredDF defineVariables(definedDF &d)
   };
 
   // is it kaon?
-  auto newpidKaon = [](const RVecF &pidx, const RVecF &pidy,
+  auto newpidKaon = [](const RVecF &pidx, const RVecF &pidy, const RVecI &isTof, const RVecF &m2,
                        const RVecF &meanXpi, const RVecF &meanYpi, const RVecF &sigmXpi, const RVecF &sigmYpi,
                        const RVecF &meanXka, const RVecF &meanYka, const RVecF &sigmXka, const RVecF &sigmYka,
                        const RVecF &meanXpr, const RVecF &meanYpr, const RVecF &sigmXpr, const RVecF &sigmYpr){
-    auto result = Map(pidx, pidy, meanXpi, meanYpi, sigmXpi, sigmYpi, meanXka, meanYka, sigmXka, sigmYka, meanXpr, meanYpr, sigmXpr, sigmYpr,
-                      [](float _pidx, float _pidy, float _meanXpi, float _meanYpi, float _sigmXpi, float _sigmYpi, float _meanXka, float _meanYka, float _sigmXka, float _sigmYka, float _meanXpr, float _meanYpr, float _sigmXpr, float _sigmYpr){
+    auto result = Map(pidx, pidy, isTof, m2, meanXpi, meanYpi, sigmXpi, sigmYpi, meanXka, meanYka, sigmXka, sigmYka, meanXpr, meanYpr, sigmXpr, sigmYpr,
+                      [](float _pidx, float _pidy, int _isTof, float _m2, float _meanXpi, float _meanYpi, float _sigmXpi, float _sigmYpi, float _meanXka, float _meanYka, float _sigmXka, float _sigmYka, float _meanXpr, float _meanYpr, float _sigmXpr, float _sigmYpr){
                         int iskaon = 0;
-                        if ( pow(_pidx - _meanXpi,2)/pow(3.*_sigmXpi,2)+pow(_pidy - _meanYpi,2)/pow(3.*_sigmYpi,2) > 1. &&
+                        if ( pow(_pidx - _meanXka,2)/pow(3.*_sigmXka,2)+pow(_pidy - _meanYka,2)/pow(3.*_sigmYka,2) < 1. && _isTof==1 && _m2 > 0.2 && _m2 < 0.32)
+                        /*if ( pow(_pidx - _meanXpi,2)/pow(3.*_sigmXpi,2)+pow(_pidy - _meanYpi,2)/pow(3.*_sigmYpi,2) > 1. &&
                              pow(_pidx - _meanXka,2)/pow(3.*_sigmXka,2)+pow(_pidy - _meanYka,2)/pow(3.*_sigmYka,2) < 1. &&
-                             pow(_pidx - _meanXpr,2)/pow(3.*_sigmXpr,2)+pow(_pidy - _meanYpr,2)/pow(3.*_sigmYpr,2) > 1.)
+                             pow(_pidx - _meanXpr,2)/pow(3.*_sigmXpr,2)+pow(_pidy - _meanYpr,2)/pow(3.*_sigmYpr,2) > 1.)*/
                           iskaon = 1;
                         return iskaon;
                       });
@@ -153,16 +155,17 @@ filteredDF defineVariables(definedDF &d)
   };
 
   // is it proton?
-  auto newpidProton = [](const RVecF &pidx, const RVecF &pidy,
+  auto newpidProton = [](const RVecF &pidx, const RVecF &pidy, const RVecI &isTof, const RVecF &m2,
                          const RVecF &meanXpi, const RVecF &meanYpi, const RVecF &sigmXpi, const RVecF &sigmYpi,
                          const RVecF &meanXka, const RVecF &meanYka, const RVecF &sigmXka, const RVecF &sigmYka,
                          const RVecF &meanXpr, const RVecF &meanYpr, const RVecF &sigmXpr, const RVecF &sigmYpr){
-    auto result = Map(pidx, pidy, meanXpi, meanYpi, sigmXpi, sigmYpi, meanXka, meanYka, sigmXka, sigmYka, meanXpr, meanYpr, sigmXpr, sigmYpr,
-                      [](float _pidx, float _pidy, float _meanXpi, float _meanYpi, float _sigmXpi, float _sigmYpi, float _meanXka, float _meanYka, float _sigmXka, float _sigmYka, float _meanXpr, float _meanYpr, float _sigmXpr, float _sigmYpr){
+    auto result = Map(pidx, pidy, isTof, m2, meanXpi, meanYpi, sigmXpi, sigmYpi, meanXka, meanYka, sigmXka, sigmYka, meanXpr, meanYpr, sigmXpr, sigmYpr,
+                      [](float _pidx, float _pidy, int _isTof, float _m2, float _meanXpi, float _meanYpi, float _sigmXpi, float _sigmYpi, float _meanXka, float _meanYka, float _sigmXka, float _sigmYka, float _meanXpr, float _meanYpr, float _sigmXpr, float _sigmYpr){
                         int isproton = 0;
-                        if ( pow(_pidx - _meanXpi,2)/pow(3.*_sigmXpi,2)+pow(_pidy - _meanYpi,2)/pow(3.*_sigmYpi,2) > 1. &&
+                        if ( pow(_pidx - _meanXpr,2)/pow(3.*_sigmXpr,2)+pow(_pidy - _meanYpr,2)/pow(3.*_sigmYpr,2) < 1. && _isTof==1 && _m2 > 0.75 && _m2 < 1.2)
+                        /*if ( pow(_pidx - _meanXpi,2)/pow(3.*_sigmXpi,2)+pow(_pidy - _meanYpi,2)/pow(3.*_sigmYpi,2) > 1. &&
                              pow(_pidx - _meanXka,2)/pow(3.*_sigmXka,2)+pow(_pidy - _meanYka,2)/pow(3.*_sigmYka,2) > 1. &&
-                             pow(_pidx - _meanXpr,2)/pow(3.*_sigmXpr,2)+pow(_pidy - _meanYpr,2)/pow(3.*_sigmYpr,2) < 1.)
+                             pow(_pidx - _meanXpr,2)/pow(3.*_sigmXpr,2)+pow(_pidy - _meanYpr,2)/pow(3.*_sigmYpr,2) < 1.)*/
                           isproton = 1;
                         return isproton;
                       });
@@ -209,9 +212,9 @@ filteredDF defineVariables(definedDF &d)
     .Define("trNewPidMeanYPr", "tr_pidMeanYPr")
     .Define("trNewPidSigmXPr", "tr_pidSigmXPr")
     .Define("trNewPidSigmYPr", "tr_pidSigmYPr")
-    .Define("trNewPidPi", newpidPion, {"trNewPidX", "trNewPidY", "trNewPidMeanXPi", "trNewPidMeanYPi", "trNewPidSigmXPi", "trNewPidSigmYPi", "trNewPidMeanXKa", "trNewPidMeanYKa", "trNewPidSigmXKa", "trNewPidSigmYKa", "trNewPidMeanXPr", "trNewPidMeanYPr", "trNewPidSigmXPr", "trNewPidSigmYPr"})
-    .Define("trNewPidKa", newpidKaon, {"trNewPidX", "trNewPidY", "trNewPidMeanXPi", "trNewPidMeanYPi", "trNewPidSigmXPi", "trNewPidSigmYPi", "trNewPidMeanXKa", "trNewPidMeanYKa", "trNewPidSigmXKa", "trNewPidSigmYKa", "trNewPidMeanXPr", "trNewPidMeanYPr", "trNewPidSigmXPr", "trNewPidSigmYPr"})
-    .Define("trNewPidPr", newpidProton, {"trNewPidX", "trNewPidY", "trNewPidMeanXPi", "trNewPidMeanYPi", "trNewPidSigmXPi", "trNewPidSigmYPi", "trNewPidMeanXKa", "trNewPidMeanYKa", "trNewPidSigmXKa", "trNewPidSigmYKa", "trNewPidMeanXPr", "trNewPidMeanYPr", "trNewPidSigmXPr", "trNewPidSigmYPr"})
+    .Define("trNewPidPi", newpidPion, {"trNewPidX", "trNewPidY", "trIsTof", "trM2", "trNewPidMeanXPi", "trNewPidMeanYPi", "trNewPidSigmXPi", "trNewPidSigmYPi", "trNewPidMeanXKa", "trNewPidMeanYKa", "trNewPidSigmXKa", "trNewPidSigmYKa", "trNewPidMeanXPr", "trNewPidMeanYPr", "trNewPidSigmXPr", "trNewPidSigmYPr"})
+    .Define("trNewPidKa", newpidKaon, {"trNewPidX", "trNewPidY", "trIsTof", "trM2", "trNewPidMeanXPi", "trNewPidMeanYPi", "trNewPidSigmXPi", "trNewPidSigmYPi", "trNewPidMeanXKa", "trNewPidMeanYKa", "trNewPidSigmXKa", "trNewPidSigmYKa", "trNewPidMeanXPr", "trNewPidMeanYPr", "trNewPidSigmXPr", "trNewPidSigmYPr"})
+    .Define("trNewPidPr", newpidProton, {"trNewPidX", "trNewPidY", "trIsTof", "trM2", "trNewPidMeanXPi", "trNewPidMeanYPi", "trNewPidSigmXPi", "trNewPidSigmYPi", "trNewPidMeanXKa", "trNewPidMeanYKa", "trNewPidSigmXKa", "trNewPidSigmYKa", "trNewPidMeanXPr", "trNewPidMeanYPr", "trNewPidSigmXPr", "trNewPidSigmYPr"})
     .Filter("abs(evVtxZ)<30.")                      // At least one filter should be present (even if it always returns true)!!!
     .Filter("sqrt(evVtxX*evVtxX+evVtxY*evVtxY)<2.") // At least one filter should be present (even if it always returns true)!!!
     .Filter("abs(evVtxZ-evVpdZ)<3.")                // At least one filter should be present (even if it always returns true)!!!
@@ -376,7 +379,7 @@ void setupQvectors()
   man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
-  man.AddHisto2D(name.c_str(), {{"trNewPidX", 260, -0.8, 1.8}, {"trNewPidY", 260, -1.8, 0.8}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNewPidX", 520, -0.8, 1.8}, {"trNewPidY", 520, -1.8, 0.8}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trM2", 170, -0.2, 1.5}, {"trP", 175, 0., 3.5}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trP", 175, 0., 3.5}, {"trDedx", 325, 0., 6.5e-5}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trNsigPi", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
@@ -401,7 +404,7 @@ void setupQvectors()
   man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
-  man.AddHisto2D(name.c_str(), {{"trNewPidX", 260, -0.8, 1.8}, {"trNewPidY", 260, -1.8, 0.8}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNewPidX", 520, -0.8, 1.8}, {"trNewPidY", 520, -1.8, 0.8}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trM2", 170, -0.2, 1.5}, {"trP", 175, 0., 3.5}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trP", 175, 0., 3.5}, {"trDedx", 325, 0., 6.5e-5}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trNsigPi", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
@@ -426,7 +429,7 @@ void setupQvectors()
   man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
-  man.AddHisto2D(name.c_str(), {{"trNewPidX", 260, -0.8, 1.8}, {"trNewPidY", 260, -1.8, 0.8}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNewPidX", 520, -0.8, 1.8}, {"trNewPidY", 520, -1.8, 0.8}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trM2", 170, -0.2, 1.5}, {"trP", 175, 0., 3.5}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trP", 175, 0., 3.5}, {"trDedx", 325, 0., 6.5e-5}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trNsigPi", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
@@ -541,7 +544,7 @@ void setupQvectors()
   man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
-  man.AddHisto2D(name.c_str(), {{"trNewPidX", 260, -0.8, 1.8}, {"trNewPidY", 260, -1.8, 0.8}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNewPidX", 520, -0.8, 1.8}, {"trNewPidY", 520, -1.8, 0.8}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trM2", 170, -0.2, 1.5}, {"trP", 175, 0., 3.5}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trP", 175, 0., 3.5}, {"trDedx", 325, 0., 6.5e-5}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trNsigPi", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
@@ -566,7 +569,7 @@ void setupQvectors()
   man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
-  man.AddHisto2D(name.c_str(), {{"trNewPidX", 260, -0.8, 1.8}, {"trNewPidY", 260, -1.8, 0.8}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNewPidX", 520, -0.8, 1.8}, {"trNewPidY", 520, -1.8, 0.8}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trM2", 170, -0.2, 1.5}, {"trP", 175, 0., 3.5}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trP", 175, 0., 3.5}, {"trDedx", 325, 0., 6.5e-5}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trNsigPi", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
@@ -591,7 +594,7 @@ void setupQvectors()
   man.AddHisto1D(name.c_str(), {"evVtxZ", 60, -30., 30.}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPhi", 100, -3.15, 3.15}, "Ones");
   man.AddHisto1D(name.c_str(), {"trPt", 5000, 0., 5.}, "Ones");
-  man.AddHisto2D(name.c_str(), {{"trNewPidX", 260, -0.8, 1.8}, {"trNewPidY", 260, -1.8, 0.8}}, "Ones");
+  man.AddHisto2D(name.c_str(), {{"trNewPidX", 520, -0.8, 1.8}, {"trNewPidY", 520, -1.8, 0.8}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trM2", 170, -0.2, 1.5}, {"trP", 175, 0., 3.5}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trP", 175, 0., 3.5}, {"trDedx", 325, 0., 6.5e-5}}, "Ones");
   man.AddHisto2D(name.c_str(), {{"trNsigPi", 330, -3.3, 3.3}, {"trP", 175, 0., 3.5}}, "Ones");
